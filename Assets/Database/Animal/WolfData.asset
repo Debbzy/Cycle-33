@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e4f3100568e7fa47bcc816eb22b61cc, type: 3}
+  m_Name: WolfData
+  m_EditorClassIdentifier: 
+  species: 3
+  price: 200
+  earn: 50
+  ageLimit: 8
+  birthBarMax: 4
+  adultGrowCycles: 1
+  hungerInterval: 1
+  hungryTolerance: 2
+  lightningWeight: 3
+  preyDiet: 0100000002000000
+  eatsWorm: 0
+  eatsGrass: 0
+  isPredator: 1
+  activeInDay: 1
+  activeInNight: 0
+  activeInFullMoonNight: 1
+  moveSpeedCellsPerSec: 2.5
+  eatAnimDurationSec: 1.5
+  eatHitFrameNormalized: 0.5
+  mateAnimDurationSec: 1.5
+  prefab: {fileID: 2567734888787833494, guid: ceedfd66c969b8e40a26ccf1db2057ba, type: 3}

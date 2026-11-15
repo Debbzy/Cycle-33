@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e4f3100568e7fa47bcc816eb22b61cc, type: 3}
+  m_Name: CivetData
+  m_EditorClassIdentifier: 
+  species: 4
+  price: 150
+  earn: 35
+  ageLimit: 6
+  birthBarMax: 3
+  adultGrowCycles: 1
+  hungerInterval: 2
+  hungryTolerance: 2
+  lightningWeight: 3
+  preyDiet: 02000000
+  eatsWorm: 0
+  eatsGrass: 0
+  isPredator: 1
+  activeInDay: 1
+  activeInNight: 0
+  activeInFullMoonNight: 0
+  moveSpeedCellsPerSec: 2.5
+  eatAnimDurationSec: 1.5
+  eatHitFrameNormalized: 0.5
+  mateAnimDurationSec: 1.5
+  prefab: {fileID: 4135118621282190031, guid: 1b247a3b05c221b428e24fbcee61e520, type: 3}

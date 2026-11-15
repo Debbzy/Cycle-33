@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e4f3100568e7fa47bcc816eb22b61cc, type: 3}
+  m_Name: ChickenData
+  m_EditorClassIdentifier: 
+  species: 2
+  price: 50
+  earn: 5
+  ageLimit: 4
+  birthBarMax: 2
+  adultGrowCycles: 1
+  hungerInterval: 1
+  hungryTolerance: 1
+  lightningWeight: 1
+  preyDiet: 00000000
+  eatsWorm: 0
+  eatsGrass: 1
+  isPredator: 0
+  activeInDay: 1
+  activeInNight: 0
+  activeInFullMoonNight: 0
+  moveSpeedCellsPerSec: 2.5
+  eatAnimDurationSec: 1.5
+  eatHitFrameNormalized: 0.5
+  mateAnimDurationSec: 1.5
+  prefab: {fileID: 8749380657175150011, guid: 644228327140f20428be23e5bd614241, type: 3}
