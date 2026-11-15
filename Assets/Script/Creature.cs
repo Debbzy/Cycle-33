@@ -11,12 +11,13 @@ namespace Cycle33.Systems
         public int RuntimeId { get; private set; }
         public AnimalDataSO Data { get; private set; }
 
-        // State per hewan (Bagian 5.1)
+        // State per hewan (Bagian 5.1) - Eksplisit terlihat di Inspector
+        [Header("Runtime Status (Bagian 5.1)")]
         public int age;
-        public bool isAdult => Data != null && age >= Data.adultGrowCycles;
+        public bool isAdult;
         public int birthBar;
         public int cyclesSinceMeal;
-        public bool isHungry => isAdult && (cyclesSinceMeal >= Data.hungerInterval);
+        public bool isHungry;
         public int missedMeals;
         public int sickRemaining;
         public bool isSick => sickRemaining > 0;
@@ -25,6 +26,7 @@ namespace Cycle33.Systems
         public bool isUndercover; // CAVE-01: Tidur di dalam goa (kebal petir)
 
         // Session flags
+        [Header("Session Flags")]
         public bool ateThisPeriod;
         public bool matedThisPeriod;
         public bool isReadyToMate => isAdult && Data != null && birthBar >= Data.birthBarMax;
@@ -56,8 +58,12 @@ namespace Cycle33.Systems
 
             // ANI-01 & ANI-05: Beli = umur 1 (langsung Adult & Hungry). Lahir = umur 0 (Baby)
             age = isPurchased ? 1 : 0;
+            isAdult = age >= Data.adultGrowCycles;
             birthBar = 0;
-            cyclesSinceMeal = isPurchased ? data.hungerInterval : 0;
+
+            cyclesSinceMeal = isPurchased ? Data.hungerInterval : 0;
+            isHungry = isAdult && (cyclesSinceMeal >= Data.hungerInterval); // ANI-02
+
             missedMeals = 0;
             sickRemaining = 0;
             isFrozen = false;
@@ -72,7 +78,7 @@ namespace Cycle33.Systems
 
         private void UpdateBabyVisualScale()
         {
-            // Membedakan ukuran visual Baby vs Adult
+            isAdult = Data != null && age >= Data.adultGrowCycles;
             transform.localScale = isAdult ? Vector3.one : Vector3.one * 0.6f;
         }
 
@@ -85,7 +91,24 @@ namespace Cycle33.Systems
             IsMateInitiator = false;
         }
 
-        // ANI-01, ANI-02, ANI-04, ANI-06, SICK-05: Upkeep di awal siklus
+        // Cek apakah hewan ini aktif di fase sekarang (memperhitungkan Nocturnal / Diurnal & Full Moon)
+        public bool IsActiveInPhase(PhaseType phase, Cycle33.Core.EventType currentEvent)
+        {
+            if (Data == null) return false;
+            if (phase == PhaseType.DayPhase)
+            {
+                return Data.activeInDay;
+            }
+            if (phase == PhaseType.NightPhase)
+            {
+                if (Data.activeInNight) return true;
+                if (Data.activeInFullMoonNight && currentEvent == Cycle33.Core.EventType.FullMoon) return true;
+                return false;
+            }
+            return false;
+        }
+
+        // ANI-01, ANI-02, ANI-04, ANI-06, SICK-05: Upkeep di awal siklus (sebelum DayPhase dimulai)
         public bool PerformUpkeepAndCheckDeath()
         {
             if (State == CreatureState.Dead) return true;
@@ -98,7 +121,13 @@ namespace Cycle33.Systems
 
             if (isAdult)
             {
+                // ANI-02: cyclesSinceMeal++ (kecuali Frozen); isHungry = cyclesSinceMeal >= hungerInterval
                 cyclesSinceMeal++;
+                isHungry = cyclesSinceMeal >= Data.hungerInterval;
+            }
+            else
+            {
+                isHungry = false; // ANI-07: Baby tidak makan & tidak lapar
             }
 
             if (sickRemaining > 0)
@@ -106,16 +135,16 @@ namespace Cycle33.Systems
                 sickRemaining--;
             }
 
-            // Kematian umur (ANI-01)
+            // Kematian umur (ANI-01): age > ageLimit -> mati
             if (age > Data.ageLimit) return true;
 
-            // Kematian lapar untuk hewan siang (ANI-04)
+            // Kematian lapar untuk hewan siang di awal Day (ANI-04): missedMeals >= hungryTolerance -> mati
             if (Data.activeInDay && missedMeals >= Data.hungryTolerance) return true;
 
             return false;
         }
 
-        // ANI-04: Kematian lapar untuk hewan malam (Civet) dicek di awal NightPhase
+        // ANI-04: Kematian lapar untuk hewan nocturnal (Civet) dicek di awal NightPhase
         public bool CheckNightStarvationDeath()
         {
             if (State == CreatureState.Dead || isFrozen) return false;
@@ -227,6 +256,11 @@ namespace Cycle33.Systems
             {
                 PickRandomIdlePath();
             }
+            else if (newState == CreatureState.Sleeping && _currentPath == null)
+            {
+                // Pastikan benar-benar berhenti saat tidur di tempat
+                _pathIndex = 0;
+            }
         }
 
         private void Update()
@@ -264,6 +298,16 @@ namespace Cycle33.Systems
         private void UpdateIdle(float dt)
         {
             if (isLocked || isUndercover) return;
+
+            // Jaga-jaga jika fase saat ini adalah waktu tidurnya, paksa tidur
+            if (CycleManager.Instance != null &&
+                (CycleManager.Instance.CurrentPhase == PhaseType.DayPhase || CycleManager.Instance.CurrentPhase == PhaseType.NightPhase) &&
+                !IsActiveInPhase(CycleManager.Instance.CurrentPhase, CycleManager.Instance.CurrentEvent))
+            {
+                bool useCave = Data.isPredator && CycleManager.Instance.HasCaveInStage;
+                StartSleeping(useCave);
+                return;
+            }
 
             if (_currentPath != null && _pathIndex < _currentPath.Count)
             {
@@ -315,7 +359,6 @@ namespace Cycle33.Systems
 
         private void UpdateMovingToFood(float dt)
         {
-            // Jika makan Worm (Chicken di P8)
             if (HasWormTarget)
             {
                 if (HabitatManager.Instance.WormCount <= 0) { HandleFoodTargetLost(); return; }
@@ -454,10 +497,13 @@ namespace Cycle33.Systems
                 sickRemaining = _rules.sickDurationCycles;
             }
 
-            // ANI-02 & MAT-01
+            // ANI-02: Setelah makan: cyclesSinceMeal = 0, isHungry = false, missedMeals = 0
             cyclesSinceMeal = 0;
+            isHungry = false;
             missedMeals = 0;
             ateThisPeriod = true;
+
+            // MAT-01: birthBar bertambah 1 setiap makan
             birthBar = Mathf.Min(birthBar + 1, Data.birthBarMax);
         }
 
@@ -522,11 +568,11 @@ namespace Cycle33.Systems
         {
             if (isUndercover) return;
 
+            // Hanya bergerak jika sedang berjalan menuju pintu Goa; jika tidur di luar, diam di tempat
             if (_currentPath != null && _pathIndex < _currentPath.Count)
             {
                 MoveAlongPath(dt);
 
-                // Jika sudah sampai di pintu goa, cek kapasitas CAVE-01
                 if (_pathIndex >= _currentPath.Count &&
                     GridService.Instance.CaveEntryCell.HasValue &&
                     CurrentGridPos == GridService.Instance.CaveEntryCell.Value)
@@ -534,6 +580,10 @@ namespace Cycle33.Systems
                     if (CaveManager.Instance != null && CaveManager.Instance.TryEnterCave(this))
                     {
                         EnterCaveUndercover();
+                    }
+                    else
+                    {
+                        _currentPath = null; // Goa penuh, tidur di tempat (CAVE-01)
                     }
                 }
             }

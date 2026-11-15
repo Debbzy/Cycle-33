@@ -190,8 +190,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e23120200c25d7f409164053489d1a95, type: 2}
   sheepData: {fileID: 11400000, guid: 8832e3ec61db9574cb39db07ae196063, type: 2}
   wolfData: {fileID: 11400000, guid: 47d6541e1a5778d4d9b9e9afa9d518fe, type: 2}
-  initialSheepCount: 5
-  initialWolfCount: 2
+  initialSheepCount: 0
+  initialWolfCount: 0
 --- !u!114 &285959447
 MonoBehaviour:
   m_ObjectHideFlags: 0

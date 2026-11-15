@@ -90,6 +90,39 @@ namespace Cycle33.Systems
             c.ClearMateTarget();
         }
 
+        // Pengecekan ketat apakah mangsa boleh diburu predator:
+        // Mangsa HARUS sudah selesai makan & selesai kawin (sedang Idle/Drinking di siang hari, atau Sleeping di malam hari)
+        public bool IsPreyEligibleToBeHunted(Creature prey, Vector2Int hunterPos)
+        {
+            if (prey == null || !prey.isAdult || prey.Data.isPredator) return false; // INV-05 & INV-06
+            if (prey.State == CreatureState.Dead || prey.isUndercover) return false; // INV-09 & CAVE-01
+            if (_reservedPrey.Contains(prey) || _reservedMates.Contains(prey)) return false; // TGT-01 & TGT-02
+
+            // Di siang hari, mangsa hanya boleh dimakan saat sudah Idle (atau Drinking dari Idle)
+            // dan pastikan mangsa tidak sedang punya makanan tersisa atau pasangan kawin yang siap
+            if (CycleManager.Instance.CurrentPhase == PhaseType.DayPhase)
+            {
+                bool isIdleState = (prey.State == CreatureState.Idle || prey.State == CreatureState.Drinking);
+                if (!isIdleState) return false;
+
+                // Jika mangsa masih lapar dan masih ada makanan untuknya, biarkan mangsa makan dulu!
+                if (prey.isHungry && !prey.ateThisPeriod && HasAvailableFoodTargetFor(prey))
+                    return false;
+
+                // Jika mangsa sudah Ready kawin dan ada pasangan Ready untuknya, biarkan kawin dulu!
+                if (prey.isReadyToMate && !prey.matedThisPeriod && HasAvailableReadyMateFor(prey))
+                    return false;
+            }
+            else if (CycleManager.Instance.CurrentPhase == PhaseType.NightPhase)
+            {
+                // Di malam hari, mangsa (Sheep/Chicken) sedang Sleeping atau Idle
+                bool isValidNightPreyState = (prey.State == CreatureState.Sleeping || prey.State == CreatureState.Idle || prey.State == CreatureState.Drinking);
+                if (!isValidNightPreyState) return false;
+            }
+
+            return GridService.Instance.FindPath(hunterPos, prey.CurrentGridPos) != null;
+        }
+
         // TGT-03: Algoritma Assign Target Makan
         public bool TryAssignFoodTarget(Creature seeker)
         {
@@ -120,13 +153,7 @@ namespace Cycle33.Systems
                     var candidates = CycleManager.Instance.ActiveCreatures
                         .Where(c => c != null &&
                                     c.Data.species == preySpecies &&
-                                    c.isAdult && // INV-06: Baby tidak bisa ditarget
-                                    !c.Data.isPredator && // INV-05: Predator tidak pernah dimakan
-                                    c.State != CreatureState.Dead && // INV-09
-                                    !c.isUndercover &&
-                                    (c.State == CreatureState.Idle || c.State == CreatureState.Sleeping || c.State == CreatureState.Drinking) &&
-                                    !_reservedPrey.Contains(c) &&
-                                    GridService.Instance.FindPath(seeker.CurrentGridPos, c.CurrentGridPos) != null)
+                                    IsPreyEligibleToBeHunted(c, seeker.CurrentGridPos))
                         .OrderBy(c => (c.Data.ageLimit - c.age)) // Sisa umur terkecil (paling tua)
                         .ThenBy(c => Vector2Int.Distance(seeker.CurrentGridPos, c.CurrentGridPos))
                         .ThenBy(c => c.RuntimeId)
@@ -176,7 +203,7 @@ namespace Cycle33.Systems
         public bool TryPairForMating(Creature seeker)
         {
             if (seeker == null || !seeker.isReadyToMate || seeker.matedThisPeriod || seeker.isFrozen) return false;
-            if (seeker.State != CreatureState.Idle || _reservedMates.Contains(seeker)) return false;
+            if (seeker.State != CreatureState.Idle || _reservedMates.Contains(seeker) || _reservedPrey.Contains(seeker)) return false;
 
             var partner = CycleManager.Instance.ActiveCreatures
                 .Where(c => c != null && c != seeker &&
@@ -186,6 +213,7 @@ namespace Cycle33.Systems
                             !c.isFrozen &&
                             c.State == CreatureState.Idle &&
                             !_reservedMates.Contains(c) &&
+                            !_reservedPrey.Contains(c) &&
                             GridService.Instance.FindPath(seeker.CurrentGridPos, c.CurrentGridPos) != null)
                 .OrderBy(c => Vector2Int.Distance(seeker.CurrentGridPos, c.CurrentGridPos))
                 .ThenBy(c => c.RuntimeId)
@@ -212,11 +240,7 @@ namespace Cycle33.Systems
                 return CycleManager.Instance.ActiveCreatures.Any(prey =>
                     prey != null &&
                     seeker.Data.preyDiet.Contains(prey.Data.species) &&
-                    prey.isAdult &&
-                    prey.State != CreatureState.Dead &&
-                    !prey.isUndercover &&
-                    (prey.State == CreatureState.Idle || prey.State == CreatureState.Sleeping || prey.State == CreatureState.Drinking) &&
-                    !_reservedPrey.Contains(prey));
+                    IsPreyEligibleToBeHunted(prey, seeker.CurrentGridPos));
             }
             return false;
         }
@@ -231,7 +255,8 @@ namespace Cycle33.Systems
                 !other.matedThisPeriod &&
                 !other.isFrozen &&
                 other.State == CreatureState.Idle &&
-                !_reservedMates.Contains(other));
+                !_reservedMates.Contains(other) &&
+                !_reservedPrey.Contains(other));
         }
     }
 }
