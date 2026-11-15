@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 946 321" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:affinity="https://www.affinity.studio/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(4.166667,0,0,4.166667,-25,-16.666667)">
+        <g id="BTN_Start" transform="matrix(1,0,0,1,-840.907303,-561.707336)">
+            <g transform="matrix(0.512058,0,0,0.690989,468.424386,184.736252)">
+                <path d="M739.409,612.63L739.409,601.073L740.581,603.315C746.477,580.183 773.917,562.664 806.835,562.664L1113.165,562.664C1145.797,562.664 1173.045,579.88 1179.26,602.712L1180.591,602.528L1180.591,612.63C1180.591,640.207 1150.378,662.595 1113.165,662.595L806.835,662.595C769.622,662.595 739.409,640.207 739.409,612.63Z" style="fill:rgb(70,130,50);"/>
+            </g>
+            <g transform="matrix(0.743701,0,0,0.523038,359.001895,240.706262)">
+                <path d="M913.576,622.985C939.198,622.985 960,652.563 960,688.995C960,725.426 939.198,755.004 913.576,755.004L702.659,755.004C677.037,755.004 656.235,725.426 656.235,688.995C656.235,652.563 677.037,622.985 702.659,622.985L913.576,622.985Z" style="fill:rgb(168,202,88);"/>
+            </g>
+            <g transform="matrix(0.930042,0,0,0.727133,157.66701,100.979785)">
+                <text x="784.854px" y="711.176px" style="font-family:'BabyDoll', 'Baby Doll';font-size:83.952px;letter-spacing:-4.2px;fill:rgb(117,167,67);">pla<tspan style="letter-spacing:0px">y</tspan></text>
+            </g>
+            <g transform="matrix(0.930042,0,0,0.930042,157.66701,-43.573105)">
+                <text x="784.854px" y="711.176px" style="font-family:'BabyDoll', 'Baby Doll';font-size:83.952px;letter-spacing:-4.2px;fill:rgb(235,237,233);">pla<tspan style="letter-spacing:0px">y</tspan></text>
+            </g>
+        </g>
+    </g>
+</svg>
