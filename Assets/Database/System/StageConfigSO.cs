@@ -13,33 +13,98 @@ namespace Cycle33.Data
         public int targetMoney = 1000;
         public int grassBasePerCycle = 5;
         public int caveCapacityPerSpecies = 10;
-        public bool hasCave = true;
+        public bool hasCave = true; // Stage 7 = false (No Cave)
 
+        [Header("Available Creatures in Stage")]
         public List<Species> availableAnimals = new List<Species>();
-        public List<ObjectPlacement> staticObjects = new List<ObjectPlacement>();
-        public List<EventCalendarEntry> eventCalendar = new List<EventCalendarEntry>();
 
-        // CFG-01 (MUST): Validasi saat load, maksimal satu event per siklus
-        public void ValidateCalendar()
+        [Header("Random Weather Settings (Muncul setiap N Cycle)")]
+        public int eventIntervalCycles = 3;
+        public List<Cycle33.Core.EventType> availableEvents = new List<Cycle33.Core.EventType>(); // Isi sesuai tabel: Rn, Fm, Ts, Bs
+
+        [Header("Habitat Layout")]
+        public List<ObjectPlacement> staticObjects = new List<ObjectPlacement>();
+
+        // Memilih event secara pure random setiap kelipatan eventIntervalCycles (Cycle 3, 6, 9, dst.)
+        public Cycle33.Core.EventType RollEventForCycle(int cycle, System.Random rng)
         {
-            HashSet<int> seenCycles = new HashSet<int>();
-            foreach (var entry in eventCalendar)
+            if (eventIntervalCycles <= 0 || cycle % eventIntervalCycles != 0)
+                return Cycle33.Core.EventType.None;
+
+            if (availableEvents == null || availableEvents.Count == 0)
+                return Cycle33.Core.EventType.None;
+
+            // Filter bila ada yang tidak sengaja memasukkan EventType.None ke dalam list
+            List<Cycle33.Core.EventType> validPool = new List<Cycle33.Core.EventType>();
+            foreach (var evt in availableEvents)
             {
-                if (!seenCycles.Add(entry.cycleIndex))
-                {
-                    Debug.LogError($"[CFG-01 Violation] Stage {stageIndex}: Duplikat event ditemukan pada Cycle {entry.cycleIndex}!");
-                    throw new System.Exception($"CFG-01 Duplicate Event on Cycle {entry.cycleIndex}");
-                }
+                if (evt != Cycle33.Core.EventType.None) validPool.Add(evt);
             }
+
+            if (validPool.Count == 0) return Cycle33.Core.EventType.None;
+
+            int randIdx = rng.Next(0, validPool.Count);
+            return validPool[randIdx];
         }
 
-        public Cycle33.Core.EventType GetEventForCycle(int cycle)
+        // Helper tombol klik kanan di Inspector untuk mengisi otomatis sesuai Tabel Stage 1-7
+        [ContextMenu("Auto-Setup From Stage Index (1-7)")]
+        public void AutoSetupByStageIndex()
         {
-            foreach (var entry in eventCalendar)
+            availableAnimals.Clear();
+            availableEvents.Clear();
+            eventIntervalCycles = 3;
+            hasCave = (stageIndex != 7);
+
+            // Semua stage punya Sheep & Wolf
+            availableAnimals.Add(Species.Sheep);
+            availableAnimals.Add(Species.Wolf);
+
+            if (stageIndex >= 4)
             {
-                if (entry.cycleIndex == cycle) return entry.eventType;
+                availableAnimals.Add(Species.Worm);
+                availableAnimals.Add(Species.Chicken);
             }
-            return Cycle33.Core.EventType.None;
+            if (stageIndex >= 5)
+            {
+                availableAnimals.Add(Species.Civet);
+            }
+
+            // Setup Weather & Total Days sesuai tabel
+            switch (stageIndex)
+            {
+                case 1:
+                    totalCycles = 7;
+                    break;
+                case 2:
+                    totalCycles = 14;
+                    availableEvents.Add(Cycle33.Core.EventType.Rain);
+                    break;
+                case 3:
+                    totalCycles = 21;
+                    availableEvents.Add(Cycle33.Core.EventType.Rain);
+                    availableEvents.Add(Cycle33.Core.EventType.FullMoon);
+                    break;
+                case 4:
+                    totalCycles = 28;
+                    availableEvents.Add(Cycle33.Core.EventType.Rain);
+                    availableEvents.Add(Cycle33.Core.EventType.FullMoon);
+                    break;
+                case 5:
+                    totalCycles = 35;
+                    availableEvents.Add(Cycle33.Core.EventType.Rain);
+                    availableEvents.Add(Cycle33.Core.EventType.FullMoon);
+                    availableEvents.Add(Cycle33.Core.EventType.Thunderstorm);
+                    break;
+                case 6:
+                case 7:
+                    totalCycles = 35;
+                    availableEvents.Add(Cycle33.Core.EventType.Rain);
+                    availableEvents.Add(Cycle33.Core.EventType.FullMoon);
+                    availableEvents.Add(Cycle33.Core.EventType.Thunderstorm);
+                    availableEvents.Add(Cycle33.Core.EventType.BirthSeason);
+                    break;
+            }
         }
     }
 }

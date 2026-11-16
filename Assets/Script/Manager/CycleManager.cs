@@ -17,6 +17,7 @@ namespace Cycle33.Systems
         public bool IsSessionADone { get; private set; }
         public bool IsGameOver { get; private set; }
         public bool HasCaveInStage => _stage != null && _stage.hasCave;
+        public bool IsPredatorShelterWeather => CurrentEvent == Cycle33.Core.EventType.Rain || CurrentEvent == Cycle33.Core.EventType.Thunderstorm;
 
         public float PhaseRemainingSec => _rules != null
             ? Mathf.Max(0f, (CurrentPhase == PhaseType.DayPhase ? _rules.dayDurationSec : _rules.nightDurationSec) - _phaseTimer)
@@ -71,7 +72,6 @@ namespace Cycle33.Systems
             c.Initialize(_nextCreatureId++, data, _rules, isPurchased);
             ActiveCreatures.Add(c);
 
-            // Jika di-spawn saat siklus sudah berjalan (baik beli maupun lahir)
             if (CurrentCycle > 0 && !IsGameOver)
             {
                 ApplyMidCycleSpawnState(c, isPurchased);
@@ -82,10 +82,10 @@ namespace Cycle33.Systems
 
         private void ApplyMidCycleSpawnState(Creature c, bool isPurchased)
         {
-            // 1. Jika sedang Rain dan hewan ini predator -> langsung Frozen (WX-RN-02)
-            if (CurrentEvent == Cycle33.Core.EventType.Rain && c.Data.isPredator)
+            // 1. Jika sedang Rain atau Thunderstorm, predator (Wolf & Civet) langsung masuk Cave & Frozen!
+            if (IsPredatorShelterWeather && c.Data.isPredator)
             {
-                c.SetFrozen(true);
+                c.EvacuateToCaveAndFreeze(HasCaveInStage);
                 return;
             }
 
@@ -95,36 +95,29 @@ namespace Cycle33.Systems
                 bool isActiveNow = c.IsActiveInPhase(CurrentPhase, CurrentEvent);
                 if (!isActiveNow)
                 {
-                    // Bila di-spawn di waktu tidurnya (mis. Sheep saat malam, atau Civet saat siang) -> langsung tidur!
                     bool canUseCave = c.Data.isPredator && HasCaveInStage;
                     c.StartSleeping(canUseCave);
                     return;
                 }
             }
 
-            // 3. Jika hewan baru dibeli (Adult & Hungry) pada fase aktifnya -> langsung bisa makan!
+            // 3. Jika hewan baru dibeli pada fase aktifnya -> langsung bisa makan!
             if (isPurchased && c.isAdult)
             {
                 if (CurrentPhase == PhaseType.DayPhase)
                 {
                     if (SessionASpecies.Contains(c.Data.species))
                     {
-                        // Buka kembali Session A bila sebelumnya sudah Done, supaya Sheep/Chicken baru ini makan & kawin dulu sebelum dimakan Wolf
                         IsSessionADone = false;
                         TargetRegistry.Instance.TryAssignFoodTarget(c);
                     }
-                    else if (c.Data.species == Species.Wolf)
+                    else if (c.Data.species == Species.Wolf && IsSessionADone && !IsPredatorShelterWeather)
                     {
-                        // Wolf baru dibeli di siang hari: jika Session A sudah Done, langsung makan; jika belum, tunggu Session A Done di Update()
-                        if (IsSessionADone)
-                        {
-                            TargetRegistry.Instance.TryAssignFoodTarget(c);
-                        }
+                        TargetRegistry.Instance.TryAssignFoodTarget(c);
                     }
                 }
-                else if (CurrentPhase == PhaseType.NightPhase)
+                else if (CurrentPhase == PhaseType.NightPhase && !IsPredatorShelterWeather)
                 {
-                    // Civet (atau Wolf saat Full Moon) yang dibeli malam hari langsung berburu
                     TargetRegistry.Instance.TryAssignFoodTarget(c);
                 }
             }
@@ -139,7 +132,6 @@ namespace Cycle33.Systems
             Destroy(c.gameObject);
         }
 
-        // CYC-01: Urutan 1 -> 2 -> 3 -> 4 berjalan terurut dan atomik sebelum Day dimulai
         private void BeginNextCycle()
         {
             if (CurrentCycle >= _stage.totalCycles)
@@ -149,13 +141,17 @@ namespace Cycle33.Systems
                 return;
             }
 
-            // 1. CycleStart
+            // 1. CycleStart: Roll event secara pure random setiap 3 cycle
             CurrentCycle++;
             CurrentPhase = PhaseType.CycleStart;
             TargetRegistry.Instance.ClearAllReservations();
             Assert.AreEqual(0, TargetRegistry.Instance.ReservedWorms, "[INV-08] Reservasi harus kosong di awal siklus!");
 
-            CurrentEvent = _stage.GetEventForCycle(CurrentCycle);
+            CurrentEvent = _stage.RollEventForCycle(CurrentCycle, SimulationClock.Instance.SeededRng);
+            if (CurrentEvent != Cycle33.Core.EventType.None)
+            {
+                Debug.Log($"🌦️ [Cycle {CurrentCycle}] Random Weather Triggered: {CurrentEvent}!");
+            }
             EventBus.RaiseCycleStart(CurrentCycle);
 
             // 2. EventStart
@@ -187,18 +183,24 @@ namespace Cycle33.Systems
                 WeatherManager.Instance.ResetTimer();
             }
 
-            bool isRain = (CurrentEvent == Cycle33.Core.EventType.Rain);
-            if (isRain && CaveManager.Instance != null)
+            if (IsPredatorShelterWeather && CaveManager.Instance != null)
             {
-                CaveManager.Instance.EvaluateRainMorningOwnership(); // CAVE-02
+                CaveManager.Instance.EvaluateRainMorningOwnership();
             }
 
             foreach (var c in ActiveCreatures)
             {
-                // WX-RN-02: Saat Rain, semua predator Frozen seharian
                 if (c.Data.isPredator)
                 {
-                    c.SetFrozen(isRain);
+                    if (IsPredatorShelterWeather)
+                    {
+                        // Saat Rain maupun Thunderstorm, predator masuk ke Cave dan ter-Frozen seharian (Siang & Malam)
+                        c.EvacuateToCaveAndFreeze(HasCaveInStage);
+                    }
+                    else
+                    {
+                        c.SetFrozen(false);
+                    }
                 }
 
                 // MAT-06: Birth Season mengisi penuh birthBar semua adult non-Frozen
@@ -216,13 +218,21 @@ namespace Cycle33.Systems
             IsSessionADone = false;
             EventBus.RaisePhaseChanged(PhaseType.DayPhase);
 
-            if (CurrentEvent != Cycle33.Core.EventType.Rain && CaveManager.Instance != null)
+            // Hanya bangunkan Wolf jika TIDAK sedang Rain / Thunderstorm
+            if (!IsPredatorShelterWeather && CaveManager.Instance != null)
             {
                 CaveManager.Instance.WakeUpSpeciesFromCave(Species.Wolf);
             }
 
             foreach (var c in ActiveCreatures)
             {
+                if (c.Data.isPredator && IsPredatorShelterWeather)
+                {
+                    // Pastikan predator tetap di Cave / menuju Cave lalu Frozen
+                    if (!c.isFrozen) c.EvacuateToCaveAndFreeze(HasCaveInStage);
+                    continue;
+                }
+
                 if (c.isFrozen) continue;
 
                 c.ateThisPeriod = false;
@@ -230,7 +240,6 @@ namespace Cycle33.Systems
 
                 if (!c.IsActiveInPhase(PhaseType.DayPhase, CurrentEvent))
                 {
-                    // Hewan nocturnal (Civet) tidur di siang hari
                     c.StartSleeping(c.Data.isPredator && HasCaveInStage);
                 }
                 else
@@ -239,13 +248,12 @@ namespace Cycle33.Systems
                 }
             }
 
-            // Mulai Session A (Sheep & Chicken makan dan kawin dulu)
             AssignSessionTargets(SessionASpecies, isBonusFullMoonWolf: false);
         }
 
         private void StartSessionB_WolfDay()
         {
-            if (CurrentEvent == Cycle33.Core.EventType.Rain) return;
+            if (IsPredatorShelterWeather) return;
             AssignSessionTargets(SessionBSpecies, isBonusFullMoonWolf: false);
         }
 
@@ -258,13 +266,12 @@ namespace Cycle33.Systems
             _phaseTimer = 0f;
             EventBus.RaisePhaseChanged(PhaseType.NightPhase);
 
-            // ANI-04: Cek kematian lapar untuk hewan malam (Civet) di awal active period-nya (missedMeals >= hungryTolerance)
             var starvingCivets = ActiveCreatures.Where(c => c.CheckNightStarvationDeath()).ToList();
             foreach (var dead in starvingCivets) KillCreature(dead);
 
             bool isFullMoon = (CurrentEvent == Cycle33.Core.EventType.FullMoon);
 
-            if (CurrentEvent != Cycle33.Core.EventType.Rain && CaveManager.Instance != null)
+            if (!IsPredatorShelterWeather && CaveManager.Instance != null)
             {
                 CaveManager.Instance.WakeUpSpeciesFromCave(Species.Civet);
                 if (isFullMoon) CaveManager.Instance.WakeUpSpeciesFromCave(Species.Wolf);
@@ -272,6 +279,13 @@ namespace Cycle33.Systems
 
             foreach (var c in ActiveCreatures)
             {
+                if (c.Data.isPredator && IsPredatorShelterWeather)
+                {
+                    // Malam saat Rain / Thunderstorm: Wolf dan Civet tetap di Cave & Frozen
+                    if (!c.isFrozen) c.EvacuateToCaveAndFreeze(HasCaveInStage);
+                    continue;
+                }
+
                 if (c.isFrozen) continue;
 
                 if (c.IsActiveInPhase(PhaseType.NightPhase, CurrentEvent))
@@ -282,12 +296,11 @@ namespace Cycle33.Systems
                 }
                 else
                 {
-                    // Hewan diurnal (Sheep, Chicken, dan Wolf saat bukan Full Moon) tidur di malam hari
                     c.StartSleeping(c.Data.isPredator && HasCaveInStage);
                 }
             }
 
-            if (CurrentEvent != Cycle33.Core.EventType.Rain)
+            if (!IsPredatorShelterWeather)
             {
                 AssignSessionTargets(isFullMoon ? SessionCDSpecies : SessionCSpecies, isBonusFullMoonWolf: isFullMoon);
             }
@@ -332,18 +345,16 @@ namespace Cycle33.Systems
 
             if (CurrentPhase == PhaseType.DayPhase)
             {
-                // Pastikan hewan Session A yang masih Hungry & Idle mendapat target bila rumput/cacing tersedia
                 AssignHungryIdleCreatures(SessionASpecies, isBonusFullMoonWolf: false);
                 TryMatchIdleReadyMates(SessionASpecies);
 
-                // CYC-04 & CYC-06: Wolf (Session B) HANYA boleh mulai berburu setelah seluruh Sheep & Chicken selesai makan & selesai kawin (Idle)
                 if (!IsSessionADone && CheckIsSessionDone(SessionASpecies))
                 {
                     IsSessionADone = true;
                     StartSessionB_WolfDay();
                 }
 
-                if (IsSessionADone && CurrentEvent != Cycle33.Core.EventType.Rain)
+                if (IsSessionADone && !IsPredatorShelterWeather)
                 {
                     AssignHungryIdleCreatures(SessionBSpecies, isBonusFullMoonWolf: false);
                     TryMatchIdleReadyMates(SessionBSpecies);
@@ -356,7 +367,7 @@ namespace Cycle33.Systems
             }
             else if (CurrentPhase == PhaseType.NightPhase)
             {
-                if (CurrentEvent != Cycle33.Core.EventType.Rain)
+                if (!IsPredatorShelterWeather)
                 {
                     bool isFullMoon = (CurrentEvent == Cycle33.Core.EventType.FullMoon);
                     Species[] nightSpecies = isFullMoon ? SessionCDSpecies : SessionCSpecies;
@@ -371,7 +382,6 @@ namespace Cycle33.Systems
             }
         }
 
-        // Memastikan hewan yang baru di-spawn atau yang menunggu mangsa Idle langsung bergerak makan begitu target tersedia
         private void AssignHungryIdleCreatures(Species[] activeSpecies, bool isBonusFullMoonWolf)
         {
             foreach (var c in ActiveCreatures)
@@ -399,7 +409,6 @@ namespace Cycle33.Systems
             }
         }
 
-        // CYC-06: Evaluasi apakah semua anggota session sudah selesai makan & selesai kawin (kembali Idle)
         private bool CheckIsSessionDone(Species[] sessionSpecies)
         {
             var adults = ActiveCreatures
@@ -422,12 +431,14 @@ namespace Cycle33.Systems
             return true;
         }
 
-        // ANI-03 & WX-FM-02: Registrasi Miss di akhir active period
         private void RegisterPeriodMisses(bool isDayEnd)
         {
             foreach (var c in ActiveCreatures)
             {
                 if (c == null || !c.isAdult || c.isFrozen || c.State == CreatureState.Dead) continue;
+
+                // Predator tidak dihitung Miss saat Rain / Thunderstorm karena ter-Frozen di Cave
+                if (c.Data.isPredator && IsPredatorShelterWeather) continue;
 
                 if (isDayEnd && c.Data.activeInDay)
                 {
@@ -435,7 +446,6 @@ namespace Cycle33.Systems
                 }
                 else if (!isDayEnd && c.Data.species == Species.Civet)
                 {
-                    // WX-FM-02: Wolf gagal makan di malam Full Moon TIDAK dihitung Miss
                     if (c.isHungry && !c.ateThisPeriod) c.missedMeals++;
                 }
             }

@@ -11,7 +11,6 @@ namespace Cycle33.Systems
         public int RuntimeId { get; private set; }
         public AnimalDataSO Data { get; private set; }
 
-        // State per hewan (Bagian 5.1) - Eksplisit terlihat di Inspector
         [Header("Runtime Status (Bagian 5.1)")]
         public int age;
         public bool isAdult;
@@ -21,11 +20,10 @@ namespace Cycle33.Systems
         public int missedMeals;
         public int sickRemaining;
         public bool isSick => sickRemaining > 0;
-        public bool isFrozen;     // ANI-06
+        public bool isFrozen;     // ANI-06: Timer berhenti
         public bool isLocked;     // TGT-05: Mangsa dikunci saat ditarget predator
-        public bool isUndercover; // CAVE-01: Tidur di dalam goa (kebal petir)
+        public bool isUndercover; // CAVE-01: Di dalam goa (kebal petir)
 
-        // Session flags
         [Header("Session Flags")]
         public bool ateThisPeriod;
         public bool matedThisPeriod;
@@ -47,6 +45,7 @@ namespace Cycle33.Systems
         private int _pathIndex;
         private float _stateTimer;
         private bool _hitFrameTriggered;
+        private bool _freezeUponReachingCave; // Flag evakuasi predator saat Thunderstorm/Rain
         private Renderer[] _renderers;
 
         public void Initialize(int id, AnimalDataSO data, GlobalRulesSO rules, bool isPurchased)
@@ -56,13 +55,12 @@ namespace Cycle33.Systems
             _rules = rules;
             _renderers = GetComponentsInChildren<Renderer>();
 
-            // ANI-01 & ANI-05: Beli = umur 1 (langsung Adult & Hungry). Lahir = umur 0 (Baby)
             age = isPurchased ? 1 : 0;
             isAdult = age >= Data.adultGrowCycles;
             birthBar = 0;
 
             cyclesSinceMeal = isPurchased ? Data.hungerInterval : 0;
-            isHungry = isAdult && (cyclesSinceMeal >= Data.hungerInterval); // ANI-02
+            isHungry = isAdult && (cyclesSinceMeal >= Data.hungerInterval);
 
             missedMeals = 0;
             sickRemaining = 0;
@@ -71,6 +69,7 @@ namespace Cycle33.Systems
             isUndercover = false;
             ateThisPeriod = false;
             matedThisPeriod = false;
+            _freezeUponReachingCave = false;
 
             UpdateBabyVisualScale();
             TransitionTo(CreatureState.Idle);
@@ -91,10 +90,13 @@ namespace Cycle33.Systems
             IsMateInitiator = false;
         }
 
-        // Cek apakah hewan ini aktif di fase sekarang (memperhitungkan Nocturnal / Diurnal & Full Moon)
         public bool IsActiveInPhase(PhaseType phase, Cycle33.Core.EventType currentEvent)
         {
             if (Data == null) return false;
+            // Saat Rain atau Thunderstorm, predator selalu mengungsi ke goa & Frozen baik siang maupun malam
+            if (Data.isPredator && (currentEvent == Cycle33.Core.EventType.Rain || currentEvent == Cycle33.Core.EventType.Thunderstorm))
+                return false;
+
             if (phase == PhaseType.DayPhase)
             {
                 return Data.activeInDay;
@@ -108,26 +110,25 @@ namespace Cycle33.Systems
             return false;
         }
 
-        // ANI-01, ANI-02, ANI-04, ANI-06, SICK-05: Upkeep di awal siklus (sebelum DayPhase dimulai)
+        // ANI-01, ANI-02, ANI-04, ANI-06, SICK-05: Upkeep di awal siklus
         public bool PerformUpkeepAndCheckDeath()
         {
             if (State == CreatureState.Dead) return true;
 
-            // ANI-06 & INV-03: Hewan Frozen melewati semua perubahan timer/status
-            if (isFrozen) return false;
+            // ANI-06 & INV-03: Hewan Frozen (atau sedang mengungsi untuk Frozen) melewati semua perubahan timer/status
+            if (isFrozen || _freezeUponReachingCave) return false;
 
             age++;
             UpdateBabyVisualScale();
 
             if (isAdult)
             {
-                // ANI-02: cyclesSinceMeal++ (kecuali Frozen); isHungry = cyclesSinceMeal >= hungerInterval
                 cyclesSinceMeal++;
                 isHungry = cyclesSinceMeal >= Data.hungerInterval;
             }
             else
             {
-                isHungry = false; // ANI-07: Baby tidak makan & tidak lapar
+                isHungry = false;
             }
 
             if (sickRemaining > 0)
@@ -135,21 +136,51 @@ namespace Cycle33.Systems
                 sickRemaining--;
             }
 
-            // Kematian umur (ANI-01): age > ageLimit -> mati
             if (age > Data.ageLimit) return true;
-
-            // Kematian lapar untuk hewan siang di awal Day (ANI-04): missedMeals >= hungryTolerance -> mati
             if (Data.activeInDay && missedMeals >= Data.hungryTolerance) return true;
 
             return false;
         }
 
-        // ANI-04: Kematian lapar untuk hewan nocturnal (Civet) dicek di awal NightPhase
         public bool CheckNightStarvationDeath()
         {
-            if (State == CreatureState.Dead || isFrozen) return false;
+            if (State == CreatureState.Dead || isFrozen || _freezeUponReachingCave) return false;
             if (Data.activeInNight && !Data.activeInDay && missedMeals >= Data.hungryTolerance) return true;
             return false;
+        }
+
+        // Predator masuk Cave lalu ter-Frozen saat Thunderstorm / Rain (baik siang maupun malam)
+        public void EvacuateToCaveAndFreeze(bool hasCaveInStage)
+        {
+            if (TargetRegistry.Instance != null)
+                TargetRegistry.Instance.ReleaseAllForCreature(this);
+            isLocked = false;
+
+            // Jika sudah di dalam goa dari malam sebelumnya, langsung bekukan di dalam goa!
+            if (isUndercover)
+            {
+                _freezeUponReachingCave = false;
+                SetFrozen(true);
+                return;
+            }
+
+            // Jika ada Goa di stage ini, berjalan masuk ke pintu Goa dulu baru Frozen
+            if (hasCaveInStage && GridService.Instance.CaveEntryCell.HasValue)
+            {
+                _currentPath = GridService.Instance.FindPath(CurrentGridPos, GridService.Instance.CaveEntryCell.Value);
+                _pathIndex = 0;
+                if (_currentPath != null)
+                {
+                    isFrozen = false; // Biarkan bergerak sampai pintu goa
+                    _freezeUponReachingCave = true;
+                    TransitionTo(CreatureState.Sleeping);
+                    return;
+                }
+            }
+
+            // Jika tidak ada Goa (Stage 7) atau rute tertutup, langsung Frozen di tempat
+            _freezeUponReachingCave = false;
+            SetFrozen(true);
         }
 
         public void SetFrozen(bool frozen)
@@ -157,17 +188,21 @@ namespace Cycle33.Systems
             isFrozen = frozen;
             if (frozen)
             {
+                _freezeUponReachingCave = false;
                 if (TargetRegistry.Instance != null)
                     TargetRegistry.Instance.ReleaseAllForCreature(this);
                 TransitionTo(CreatureState.Frozen);
             }
-            else if (State == CreatureState.Frozen)
+            else
             {
-                TransitionTo(CreatureState.Idle);
+                _freezeUponReachingCave = false;
+                if (State == CreatureState.Frozen)
+                {
+                    TransitionTo(CreatureState.Idle);
+                }
             }
         }
 
-        // TGT-05: Mangsa dikunci saat predator menargetnya; batalkan Drinking bila sedang minum
         public void LockAsPrey()
         {
             isLocked = true;
@@ -195,7 +230,6 @@ namespace Cycle33.Systems
 
         public void LockForMatingAsReceiver(Creature initiator)
         {
-            // MAT-03: Pasangan B berhenti dan menunggu A menghampiri
             TargetMate = initiator;
             IsMateInitiator = false;
             _currentPath = null;
@@ -207,6 +241,13 @@ namespace Cycle33.Systems
             if (TargetRegistry.Instance != null)
                 TargetRegistry.Instance.ReleaseAllForCreature(this);
             isLocked = false;
+            _freezeUponReachingCave = false;
+
+            if (isUndercover)
+            {
+                TransitionTo(CreatureState.Sleeping);
+                return;
+            }
 
             if (tryGoToCave && GridService.Instance.CaveEntryCell.HasValue)
             {
@@ -228,6 +269,8 @@ namespace Cycle33.Systems
 
         public void ExitCaveAndWakeUp()
         {
+            _freezeUponReachingCave = false;
+            isFrozen = false;
             if (isUndercover)
             {
                 isUndercover = false;
@@ -258,7 +301,6 @@ namespace Cycle33.Systems
             }
             else if (newState == CreatureState.Sleeping && _currentPath == null)
             {
-                // Pastikan benar-benar berhenti saat tidur di tempat
                 _pathIndex = 0;
             }
         }
@@ -299,13 +341,20 @@ namespace Cycle33.Systems
         {
             if (isLocked || isUndercover) return;
 
-            // Jaga-jaga jika fase saat ini adalah waktu tidurnya, paksa tidur
             if (CycleManager.Instance != null &&
                 (CycleManager.Instance.CurrentPhase == PhaseType.DayPhase || CycleManager.Instance.CurrentPhase == PhaseType.NightPhase) &&
                 !IsActiveInPhase(CycleManager.Instance.CurrentPhase, CycleManager.Instance.CurrentEvent))
             {
-                bool useCave = Data.isPredator && CycleManager.Instance.HasCaveInStage;
-                StartSleeping(useCave);
+                bool isStormOrRain = CycleManager.Instance.CurrentEvent == Cycle33.Core.EventType.Thunderstorm ||
+                                     CycleManager.Instance.CurrentEvent == Cycle33.Core.EventType.Rain;
+                if (Data.isPredator && isStormOrRain)
+                {
+                    EvacuateToCaveAndFreeze(CycleManager.Instance.HasCaveInStage);
+                }
+                else
+                {
+                    StartSleeping(Data.isPredator && CycleManager.Instance.HasCaveInStage);
+                }
                 return;
             }
 
@@ -397,7 +446,7 @@ namespace Cycle33.Systems
                 _pathIndex = 0;
                 if (_currentPath == null)
                 {
-                    HandleFoodTargetLost(); // Tak terjangkau -> TGT-04
+                    HandleFoodTargetLost();
                     return;
                 }
             }
@@ -417,7 +466,6 @@ namespace Cycle33.Systems
             }
         }
 
-        // TGT-04: Target hilang -> lepas reservasi -> pilih ulang. Jika habis -> Idle.
         private void HandleFoodTargetLost()
         {
             TargetRegistry.Instance.ReleaseFoodReservation(this);
@@ -436,7 +484,6 @@ namespace Cycle33.Systems
             _stateTimer += dt;
             float hitTime = Data.eatAnimDurationSec * Data.eatHitFrameNormalized;
 
-            // ANI-08: Hit frame animasi makan
             if (!_hitFrameTriggered && _stateTimer >= hitTime)
             {
                 _hitFrameTriggered = true;
@@ -455,7 +502,6 @@ namespace Cycle33.Systems
             Assert.IsFalse(isFrozen, "[INV-03] Hewan Frozen tidak boleh makan!");
             Assert.IsTrue(isAdult, "[INV-06] Baby tidak boleh makan!");
 
-            // SICK-02: Potongan earn saat sakit berlaku untuk makan saat ini
             int finalEarn = Data.earn;
             if (isSick)
             {
@@ -463,7 +509,6 @@ namespace Cycle33.Systems
             }
             EconomyService.Instance.AddMoney(finalEarn);
 
-            // SICK-01, SICK-03, SICK-04: Evaluasi penularan penyakit (berlaku mulai makan berikutnya)
             bool contractedSickness = false;
 
             if (HasWormTarget)
@@ -482,7 +527,6 @@ namespace Cycle33.Systems
             }
             else if (TargetPrey != null)
             {
-                // SICK-04: Predator makan mangsa sakit -> ikut sakit
                 if (TargetPrey.isSick)
                     contractedSickness = true;
 
@@ -493,17 +537,15 @@ namespace Cycle33.Systems
 
             if (contractedSickness)
             {
-                // SICK-03: Durasi refresh penuh, tidak menumpuk
                 sickRemaining = _rules.sickDurationCycles;
             }
 
-            // ANI-02: Setelah makan: cyclesSinceMeal = 0, isHungry = false, missedMeals = 0
+            // ANI-02: Reset status lapar setelah makan
             cyclesSinceMeal = 0;
             isHungry = false;
             missedMeals = 0;
             ateThisPeriod = true;
 
-            // MAT-01: birthBar bertambah 1 setiap makan
             birthBar = Mathf.Min(birthBar + 1, Data.birthBarMax);
         }
 
@@ -516,7 +558,6 @@ namespace Cycle33.Systems
                 return;
             }
 
-            // MAT-03: Pasangan B diam menunggu A
             if (!IsMateInitiator) return;
 
             if (Vector3.Distance(transform.position, TargetMate.transform.position) <= 0.65f)
@@ -537,7 +578,6 @@ namespace Cycle33.Systems
             _stateTimer += dt;
             if (_stateTimer >= Data.mateAnimDurationSec)
             {
-                // MAT-03 & MAT-06: Reset birthBar keduanya ke 0, lahir 1 anak (2 saat Birth Season)
                 birthBar = 0;
                 matedThisPeriod = true;
 
@@ -552,7 +592,6 @@ namespace Cycle33.Systems
 
                     for (int i = 0; i < babyCount; i++)
                     {
-                        // MAT-05: Anak lahir sebagai Baby (isPurchased = false -> age = 0)
                         CycleManager.Instance.SpawnCreature(Data, spawnPos, isPurchased: false);
                     }
 
@@ -566,9 +605,15 @@ namespace Cycle33.Systems
 
         private void UpdateSleeping(float dt)
         {
-            if (isUndercover) return;
+            if (isUndercover)
+            {
+                if (_freezeUponReachingCave && !isFrozen)
+                {
+                    SetFrozen(true);
+                }
+                return;
+            }
 
-            // Hanya bergerak jika sedang berjalan menuju pintu Goa; jika tidur di luar, diam di tempat
             if (_currentPath != null && _pathIndex < _currentPath.Count)
             {
                 MoveAlongPath(dt);
@@ -583,9 +628,19 @@ namespace Cycle33.Systems
                     }
                     else
                     {
-                        _currentPath = null; // Goa penuh, tidur di tempat (CAVE-01)
+                        _currentPath = null; // Goa penuh, tidur/beku di luar
+                    }
+
+                    // Jika sedang mengungsi karena Thunderstorm/Rain, langsung Frozen begitu tiba di Goa!
+                    if (_freezeUponReachingCave)
+                    {
+                        SetFrozen(true);
                     }
                 }
+            }
+            else if (_freezeUponReachingCave)
+            {
+                SetFrozen(true);
             }
         }
 

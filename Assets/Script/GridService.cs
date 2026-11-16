@@ -41,7 +41,7 @@ namespace Cycle33.Systems
 
         public void InitializeGrid(GlobalRulesSO rules, StageConfigSO stage, List<ObjectDataSO> objectDatabase)
         {
-            stage.ValidateCalendar(); // CFG-01
+            //stage.ValidateCalendar(); // CFG-01
 
             Dictionary<ObjectType, ObjectDataSO> objectDb = new Dictionary<ObjectType, ObjectDataSO>();
             foreach (var obj in objectDatabase)
