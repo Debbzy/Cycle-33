@@ -20,21 +20,30 @@ MonoBehaviour:
   caveCapacityPerSpecies: 10
   hasCave: 1
   availableAnimals: 0000000001000000020000000300000004000000
+  eventIntervalCycles: 3
+  availableEvents: 
   staticObjects:
   - objectType: 1
-    bottomLeftGridPos: {x: 7, y: 7}
+    bottomLeftGridPos: {x: 4, y: 7}
   - objectType: 2
-    bottomLeftGridPos: {x: 1, y: 1}
+    bottomLeftGridPos: {x: 8, y: 7}
   - objectType: 3
-    bottomLeftGridPos: {x: 2, y: 2}
+    bottomLeftGridPos: {x: 9, y: 7}
   - objectType: 4
-    bottomLeftGridPos: {x: 4, y: 4}
-  eventCalendar:
-  - cycleIndex: 3
-    eventType: 1
-  - cycleIndex: 6
-    eventType: 2
-  - cycleIndex: 9
-    eventType: 3
-  - cycleIndex: 12
-    eventType: 4
+    bottomLeftGridPos: {x: 0, y: 8}
+  - objectType: 4
+    bottomLeftGridPos: {x: 0, y: 6}
+  - objectType: 4
+    bottomLeftGridPos: {x: 2, y: 8}
+  - objectType: 4
+    bottomLeftGridPos: {x: 2, y: 6}
+  - objectType: 2
+    bottomLeftGridPos: {x: 8, y: 6}
+  - objectType: 2
+    bottomLeftGridPos: {x: 9, y: 6}
+  - objectType: 2
+    bottomLeftGridPos: {x: 7, y: 9}
+  - objectType: 4
+    bottomLeftGridPos: {x: 8, y: 8}
+  - objectType: 2
+    bottomLeftGridPos: {x: 7, y: 9}
