@@ -19,3 +19,6 @@ MonoBehaviour:
   blocksGrass: 0
   caveEntryOffset: {x: 1, y: 0}
   prefab: {fileID: 7011001613318986693, guid: cd75c62f1934809458c58ecb7f7609e1, type: 3}
+  cycleVariantPrefabs:
+  - {fileID: 7011001613318986693, guid: a2c55744b4241fa4586b31dcb85d58e3, type: 3}
+  - {fileID: 7011001613318986693, guid: 17df8b2392785dd4abf1adc029a2c806, type: 3}

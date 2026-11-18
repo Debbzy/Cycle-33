@@ -55,6 +55,8 @@ namespace Cycle33.Systems
             List<GridCell> emptyCells = GridService.Instance.GetEmptyGrassCells();
             int spawnCount = Mathf.Min(totalToGrow, emptyCells.Count);
 
+            int currentCycle = CycleManager.Instance != null ? CycleManager.Instance.CurrentCycle : 1;
+
             for (int i = 0; i < spawnCount; i++)
             {
                 int randIndex = SimulationClock.Instance.SeededRng.Next(emptyCells.Count);
@@ -62,14 +64,14 @@ namespace Cycle33.Systems
                 emptyCells.RemoveAt(randIndex);
 
                 // HAB-05: Hanya rumput baru yang berpeluang berstatus parasit
-                bool isParasite = isOverpopulated && 
+                bool isParasite = isOverpopulated &&
                                   (SimulationClock.Instance.SeededRng.NextDouble() < _rules.parasiteChancePerNewGrass);
 
-                SpawnGrass(chosenCell, isParasite);
+                SpawnGrass(chosenCell, isParasite, currentCycle);
             }
         }
 
-        private void SpawnGrass(GridCell cell, bool isParasite)
+        private void SpawnGrass(GridCell cell, bool isParasite, int currentCycle)
         {
             Assert.IsNull(cell.Grass, "[INV-07] Satu sel rumput maksimal 1 rumput!");
 
@@ -80,10 +82,15 @@ namespace Cycle33.Systems
                 IsReserved = false
             };
 
-            if (_grassObjectData != null && _grassObjectData.prefab != null)
+            if (_grassObjectData != null)
             {
-                Vector3 pos = GridService.Instance.GridToWorld(cell.Coords);
-                grass.VisualGO = Instantiate(_grassObjectData.prefab, pos, Quaternion.identity, transform);
+                // Ambil prefab rumput sesuai urutan Cycle (Cycle 1 = Type 1, Cycle 2 = Type 2, dst.)
+                GameObject prefabToSpawn = _grassObjectData.GetPrefabForCycle(currentCycle);
+                if (prefabToSpawn != null)
+                {
+                    Vector3 pos = GridService.Instance.GridToWorld(cell.Coords);
+                    grass.VisualGO = Instantiate(prefabToSpawn, pos, Quaternion.identity, transform);
+                }
             }
 
             cell.Grass = grass;
@@ -105,30 +112,12 @@ namespace Cycle33.Systems
             ActiveGrass.Remove(grass);
         }
 
-        // Pencarian rumput terdekat yang belum direservasi (untuk P3 Sheep)
-        public GrassInstance ReserveNearestGrass(Vector2Int fromPos)
-        {
-            GrassInstance best = null;
-            float bestDist = float.MaxValue;
-
-            foreach (var g in ActiveGrass)
-            {
-                if (g.IsReserved) continue;
-                float dist = Vector2Int.Distance(fromPos, g.Coords);
-                if (dist < bestDist && GridService.Instance.FindPath(fromPos, g.Coords) != null)
-                {
-                    bestDist = dist;
-                    best = g;
-                }
-            }
-
-            if (best != null) best.IsReserved = true; // INV-01
-            return best;
-        }
-
         public void ClearAllGrassReservations()
         {
-            foreach (var g in ActiveGrass) g.IsReserved = false;
+            foreach (var g in ActiveGrass)
+            {
+                if (g != null) g.IsReserved = false;
+            }
         }
     }
 }

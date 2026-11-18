@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem; // Menggunakan New Input System bawaan Unity 6
+using UnityEngine.InputSystem;
 using Cycle33.Core;
 
 namespace Cycle33.Systems
@@ -12,7 +12,7 @@ namespace Cycle33.Systems
         [SerializeField] private Camera mainCamera;
         public Species? SelectedSpeciesForPlacement { get; private set; }
         public Vector2Int? HoveredGridCell { get; private set; }
-        public string LastGroundInspectMessage { get; private set; } = "Klik tanah untuk info cacing, atau pilih hewan di atas untuk membeli.";
+        public string LastGroundInspectMessage { get; private set; } = "Klik tanah untuk info cacing, atau pilih hewan untuk membeli.";
 
         private void Awake()
         {
@@ -23,6 +23,9 @@ namespace Cycle33.Systems
 
         public void SelectSpeciesToBuy(Species species)
         {
+            if (SimulationClock.Instance != null && SimulationClock.Instance.IsPaused) return;
+            if (CycleManager.Instance != null && CycleManager.Instance.IsGameOver) return;
+
             if (species == Species.Worm)
             {
                 // ECON-04: Worm langsung dibeli lewat tombol UI tanpa klik posisi grid
@@ -49,35 +52,35 @@ namespace Cycle33.Systems
         {
             if (mainCamera == null) mainCamera = Camera.main;
             if (mainCamera == null || CycleManager.Instance == null || CycleManager.Instance.IsGameOver) return;
+
+            // Jangan proses input klik grid jika game sedang di-Pause
+            if (SimulationClock.Instance != null && SimulationClock.Instance.IsPaused)
+            {
+                HoveredGridCell = null;
+                return;
+            }
+
             if (Mouse.current == null) return;
 
-            // Update posisi tile yang sedang ditunjuk kursor mouse
+            // Bila kursor berada di atas elemen Canvas UI Unity, jangan highlight grid di bawahnya
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            {
+                HoveredGridCell = null;
+                return;
+            }
+
             UpdateHoveredCell();
 
-            // Klik Kanan (New Input System) untuk batal memilih hewan
+            // Klik Kanan untuk batal memilih hewan
             if (Mouse.current.rightButton.wasPressedThisFrame)
             {
                 CancelSelection();
                 return;
             }
 
-            // Klik Kiri (New Input System) pada bidang tanah
-            if (Mouse.current.leftButton.wasPressedThisFrame)
+            // Klik Kiri pada tile grid
+            if (Mouse.current.leftButton.wasPressedThisFrame && HoveredGridCell.HasValue)
             {
-                // Abaikan jika klik berada di atas UI
-                if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-                    return;
-
-                // Abaikan jika klik berada di area HUD OnGUI (pojok kiri atas & tengah atas)
-                Vector2 mousePos = Mouse.current.position.ReadValue();
-                float guiY = Screen.height - mousePos.y;
-                if (new Rect(15, 15, 460, 320).Contains(new Vector2(mousePos.x, guiY)) ||
-                    new Rect(490, 15, 320, 70).Contains(new Vector2(mousePos.x, guiY)))
-                {
-                    return;
-                }
-
-                if (!HoveredGridCell.HasValue) return;
                 Vector2Int gridPos = HoveredGridCell.Value;
 
                 if (SelectedSpeciesForPlacement.HasValue)
@@ -90,7 +93,7 @@ namespace Cycle33.Systems
                     }
                     else
                     {
-                        LastGroundInspectMessage = $"Gagal! Sel {gridPos} terhalang objek (Merah) atau hewan tidak tersedia!";
+                        LastGroundInspectMessage = $"Gagal! Sel {gridPos} terhalang objek atau hewan tidak tersedia!";
                     }
                 }
                 else
@@ -100,7 +103,7 @@ namespace Cycle33.Systems
                     string grassStatus = (cell != null && cell.Grass != null)
                         ? (cell.Grass.IsParasite ? "Rumput Parasit" : "Rumput Sehat")
                         : "Tanah Kosong";
-                    LastGroundInspectMessage = $"Sel {gridPos} [{grassStatus}] | Jumlah Cacing di Tanah: {HabitatManager.Instance.WormCount}";
+                    LastGroundInspectMessage = $"Sel {gridPos} [{grassStatus}] | Cacing: {HabitatManager.Instance.WormCount}";
                 }
             }
         }
