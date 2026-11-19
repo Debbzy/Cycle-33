@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8139279646757440765}
   - component: {fileID: 6304449094119343676}
   - component: {fileID: 2565290666077184622}
+  - component: {fileID: 8646690794463638996}
   m_Layer: 0
   m_Name: Wolf
   m_TagString: Untagged
@@ -110,3 +111,27 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+--- !u!114 &8646690794463638996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2567734888787833494}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbdf323fbf89d6478219bd328abffb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - actionKey: WolfSpawn
+    cue: {fileID: 11400000, guid: 17ae9d188c5cbc841ac2a8522df081b3, type: 2}
+    volumeScale: 1
+  playOnSpawn: 1
+  spawnKey: WolfSpawn
+  spawnSilenceSec: 0.5
+  playOnDestroy: 0
+  destroyKey: 
+  joinRandomCalls: 1
+  speciesId: Wolf
+  randomCallKey: WolfSpawn

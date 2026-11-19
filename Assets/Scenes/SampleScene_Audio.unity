@@ -926,8 +926,20 @@ MonoBehaviour:
   winPanel: {fileID: 1723806317}
   losePanel: {fileID: 219436250}
   pausePanel: {fileID: 1000640757}
+  eventIconImage: {fileID: 0}
+  eventIcons: []
+  clockHandRect: {fileID: 0}
+  dayStartAngleZ: 0
+  nightStartAngleZ: 180
+  cycleEndAngleZ: 360
+  wormButtonSprite: {fileID: 0}
+  sheepButtonSprite: {fileID: 0}
+  chickenButtonSprite: {fileID: 0}
+  wolfButtonSprite: {fileID: 0}
+  civetButtonSprite: {fileID: 0}
   stageText: {fileID: 1280905888}
   cycleText: {fileID: 1328815060}
+  maxCycleText: {fileID: 0}
   phaseAndTimerText: {fileID: 394767605}
   weatherText: {fileID: 915670151}
   moneyText: {fileID: 215748737}

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7133017392880016546}
   - component: {fileID: 5166817125816362576}
   - component: {fileID: 382725708750308806}
+  - component: {fileID: -2591817667540599354}
   m_Layer: 0
   m_Name: Sheep
   m_TagString: Untagged
@@ -65,7 +66,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 6a1143ee683302f4aa628c052723efc1, type: 2}
+  - {fileID: 2100000, guid: a8939d4f7d4febf44aa68c2904e88175, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -108,3 +109,27 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-2591817667540599354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6842551185308785193}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbdf323fbf89d6478219bd328abffb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - actionKey: SheepSpawn
+    cue: {fileID: 11400000, guid: 39d409203d5c22a489510e596534120f, type: 2}
+    volumeScale: 1
+  playOnSpawn: 1
+  spawnKey: SheepSpawn
+  spawnSilenceSec: 0.5
+  playOnDestroy: 0
+  destroyKey: 
+  joinRandomCalls: 1
+  speciesId: Sheep
+  randomCallKey: SheepSpawn

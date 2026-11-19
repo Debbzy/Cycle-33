@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 7637838984400328515}
   - component: {fileID: 4146461772828558324}
   - component: {fileID: 7327634606015335139}
+  - component: {fileID: 3599947632095735704}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
@@ -147,3 +148,40 @@ MonoBehaviour:
   fullMoonCue: {fileID: 11400000, guid: 14d1a4a74af40b146a513cd49379aeec, type: 2}
   winCue: {fileID: 11400000, guid: f464af782a463424f8c1188a6739653f, type: 2}
   loseCue: {fileID: 11400000, guid: 2ddf01165078f2441908a14c23346029, type: 2}
+--- !u!114 &3599947632095735704
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2227001758683787120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a770a64360457f4d87e8c0926aab335, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rules:
+  - speciesId: Sheep
+    activeDay: 1
+    activeNight: 0
+    activeNightOnFullMoon: 0
+    silentDuringRain: 0
+  - speciesId: Chicken
+    activeDay: 1
+    activeNight: 0
+    activeNightOnFullMoon: 0
+    silentDuringRain: 0
+  - speciesId: Wolf
+    activeDay: 1
+    activeNight: 0
+    activeNightOnFullMoon: 1
+    silentDuringRain: 1
+  - speciesId: Civet
+    activeDay: 0
+    activeNight: 1
+    activeNightOnFullMoon: 0
+    silentDuringRain: 1
+  minIntervalSec: 5
+  maxIntervalSec: 10
+  retrySec: 1
+  avoidRepeatSpecies: 0

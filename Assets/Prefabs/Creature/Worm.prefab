@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5730981503405083617}
   - component: {fileID: 7987857146019612620}
   - component: {fileID: 3664060617073072718}
+  - component: {fileID: 2636270321927819131}
   m_Layer: 0
   m_Name: Worm
   m_TagString: Untagged
@@ -110,3 +111,27 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2636270321927819131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 786399154512686003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbdf323fbf89d6478219bd328abffb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - actionKey: WolfSpawn
+    cue: {fileID: 11400000, guid: 17ae9d188c5cbc841ac2a8522df081b3, type: 2}
+    volumeScale: 1
+  playOnSpawn: 1
+  spawnKey: WolfSpawn
+  spawnSilenceSec: 0.5
+  playOnDestroy: 0
+  destroyKey: 
+  joinRandomCalls: 1
+  speciesId: Wolf
+  randomCallKey: WolfSpawn

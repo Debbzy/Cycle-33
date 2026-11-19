@@ -122,6 +122,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   entries:
-  - actionKey: 
-    cue: {fileID: 11400000, guid: 7544a2b06bbe81f41af3ecdd98e43c69, type: 2}
-    volumeScale: 0
+  - actionKey: ChickenSpawn
+    cue: {fileID: 11400000, guid: 2eb9f964ab5765f4db7b04030d09ebba, type: 2}
+    volumeScale: 1
+  playOnSpawn: 1
+  spawnKey: ChickenSpawn
+  spawnSilenceSec: 0.5
+  playOnDestroy: 0
+  destroyKey: 
+  joinRandomCalls: 1
+  speciesId: Chicken
+  randomCallKey: ChickenSpawn
