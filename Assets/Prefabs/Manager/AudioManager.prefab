@@ -72,8 +72,8 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: f7e79498ea7b21346b8d5644852d2123, type: 3}
     volume: 0.45
   night:
-    clip: {fileID: 0}
-    volume: 0.8
+    clip: {fileID: 8300000, guid: a01d98d6c6a098942911d3081b523961, type: 3}
+    volume: 0.5
   rain:
     clip: {fileID: 8300000, guid: 070930d1a91083a48bb15e3f5cc4ea78, type: 3}
     volume: 0.8
