@@ -224,8 +224,9 @@ namespace Cycle33.Systems
             // 4. AnimalUpkeep
             CurrentPhase = PhaseType.AnimalUpkeep;
             List<Creature> deadList = new List<Creature>();
-            foreach (var c in ActiveCreatures)
+            foreach (var c in ActiveCreatures.ToList())   // snapshot, aman bila list berubah
             {
+                if (c == null) continue;
                 if (c.PerformUpkeepAndCheckDeath()) deadList.Add(c);
             }
             foreach (var dead in deadList) KillCreature(dead);
