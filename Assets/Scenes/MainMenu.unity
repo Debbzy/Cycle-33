@@ -652,6 +652,7 @@ GameObject:
   - component: {fileID: 95159814}
   - component: {fileID: 95159813}
   - component: {fileID: 95159816}
+  - component: {fileID: 95159817}
   m_Layer: 5
   m_Name: Play4
   m_TagString: Untagged
@@ -734,6 +735,18 @@ MonoBehaviour:
           m_StringArgument: Stage4
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 95159817}
+        m_TargetAssemblyTypeName: Cycle33.Audio.SoundActor, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Button
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &95159814
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -784,6 +797,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6833c84fa4e917f40bd923d3bee6b355, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &95159817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 95159811}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbdf323fbf89d6478219bd328abffb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - actionKey: Button
+    cue: {fileID: 11400000, guid: 536ab6824b443c140b7ed840fed464ac, type: 2}
+    volumeScale: 1
+  playOnSpawn: 0
+  spawnKey: Voice
+  spawnSilenceSec: 0.5
+  playOnDestroy: 0
+  destroyKey: Die
+  joinRandomCalls: 0
+  speciesId: 
+  randomCallKey: Voice
 --- !u!1 &99590871
 GameObject:
   m_ObjectHideFlags: 0
@@ -1263,6 +1300,7 @@ GameObject:
   - component: {fileID: 207354992}
   - component: {fileID: 207354991}
   - component: {fileID: 207354994}
+  - component: {fileID: 207354995}
   m_Layer: 5
   m_Name: Play3
   m_TagString: Untagged
@@ -1345,6 +1383,18 @@ MonoBehaviour:
           m_StringArgument: Stage3
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 95159817}
+        m_TargetAssemblyTypeName: Cycle33.Audio.SoundActor, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Button
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &207354992
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1395,6 +1445,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6833c84fa4e917f40bd923d3bee6b355, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &207354995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 207354989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbdf323fbf89d6478219bd328abffb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - actionKey: Button
+    cue: {fileID: 11400000, guid: 536ab6824b443c140b7ed840fed464ac, type: 2}
+    volumeScale: 1
+  playOnSpawn: 0
+  spawnKey: Voice
+  spawnSilenceSec: 0.5
+  playOnDestroy: 0
+  destroyKey: Die
+  joinRandomCalls: 0
+  speciesId: 
+  randomCallKey: Voice
 --- !u!1 &221297162
 GameObject:
   m_ObjectHideFlags: 0
@@ -1650,6 +1724,7 @@ GameObject:
   - component: {fileID: 285265866}
   - component: {fileID: 285265865}
   - component: {fileID: 285265868}
+  - component: {fileID: 285265869}
   m_Layer: 5
   m_Name: Play6
   m_TagString: Untagged
@@ -1732,6 +1807,18 @@ MonoBehaviour:
           m_StringArgument: Stage6
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 95159817}
+        m_TargetAssemblyTypeName: Cycle33.Audio.SoundActor, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Button
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &285265866
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1782,6 +1869,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6833c84fa4e917f40bd923d3bee6b355, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &285265869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 285265863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbdf323fbf89d6478219bd328abffb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - actionKey: Button
+    cue: {fileID: 11400000, guid: 536ab6824b443c140b7ed840fed464ac, type: 2}
+    volumeScale: 1
+  playOnSpawn: 0
+  spawnKey: Voice
+  spawnSilenceSec: 0.5
+  playOnDestroy: 0
+  destroyKey: Die
+  joinRandomCalls: 0
+  speciesId: 
+  randomCallKey: Voice
 --- !u!1 &295512490
 GameObject:
   m_ObjectHideFlags: 0
@@ -2869,6 +2980,7 @@ GameObject:
   - component: {fileID: 440534082}
   - component: {fileID: 440534081}
   - component: {fileID: 440534084}
+  - component: {fileID: 440534085}
   m_Layer: 5
   m_Name: ExitButton
   m_TagString: Untagged
@@ -2951,6 +3063,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 440534085}
+        m_TargetAssemblyTypeName: Cycle33.Audio.SoundActor, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Button
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &440534082
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3001,6 +3125,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a457e4dfc89e14408f03c1af1f370fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &440534085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 440534079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbdf323fbf89d6478219bd328abffb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - actionKey: Button
+    cue: {fileID: 11400000, guid: 536ab6824b443c140b7ed840fed464ac, type: 2}
+    volumeScale: 1
+  playOnSpawn: 0
+  spawnKey: Voice
+  spawnSilenceSec: 0.5
+  playOnDestroy: 0
+  destroyKey: Die
+  joinRandomCalls: 0
+  speciesId: 
+  randomCallKey: Voice
 --- !u!1 &464791669
 GameObject:
   m_ObjectHideFlags: 0
@@ -4911,6 +5059,7 @@ GameObject:
   - component: {fileID: 826868470}
   - component: {fileID: 826868469}
   - component: {fileID: 826868468}
+  - component: {fileID: 826868471}
   m_Layer: 5
   m_Name: CreditButton
   m_TagString: Untagged
@@ -4993,6 +5142,18 @@ MonoBehaviour:
           m_StringArgument: CreditOpen
           m_BoolArgument: 1
         m_CallState: 2
+      - m_Target: {fileID: 440534085}
+        m_TargetAssemblyTypeName: Cycle33.Audio.SoundActor, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Button
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!114 &826868469
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5031,6 +5192,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 826868466}
   m_CullTransparentMesh: 1
+--- !u!114 &826868471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 826868466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbdf323fbf89d6478219bd328abffb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - actionKey: Button
+    cue: {fileID: 11400000, guid: 536ab6824b443c140b7ed840fed464ac, type: 2}
+    volumeScale: 1
+  playOnSpawn: 0
+  spawnKey: Voice
+  spawnSilenceSec: 0.5
+  playOnDestroy: 0
+  destroyKey: Die
+  joinRandomCalls: 0
+  speciesId: 
+  randomCallKey: Voice
 --- !u!1 &833827901
 GameObject:
   m_ObjectHideFlags: 0
@@ -5888,6 +6073,7 @@ GameObject:
   - component: {fileID: 1008135280}
   - component: {fileID: 1008135279}
   - component: {fileID: 1008135282}
+  - component: {fileID: 1008135283}
   m_Layer: 5
   m_Name: Play1
   m_TagString: Untagged
@@ -5970,6 +6156,18 @@ MonoBehaviour:
           m_StringArgument: Stage1
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 95159817}
+        m_TargetAssemblyTypeName: Cycle33.Audio.SoundActor, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Button
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1008135280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6020,6 +6218,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6833c84fa4e917f40bd923d3bee6b355, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1008135283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1008135277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbdf323fbf89d6478219bd328abffb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - actionKey: Button
+    cue: {fileID: 11400000, guid: 536ab6824b443c140b7ed840fed464ac, type: 2}
+    volumeScale: 1
+  playOnSpawn: 0
+  spawnKey: Voice
+  spawnSilenceSec: 0.5
+  playOnDestroy: 0
+  destroyKey: Die
+  joinRandomCalls: 0
+  speciesId: 
+  randomCallKey: Voice
 --- !u!1 &1015225660
 GameObject:
   m_ObjectHideFlags: 0
@@ -8203,6 +8425,7 @@ GameObject:
   - component: {fileID: 1470790185}
   - component: {fileID: 1470790184}
   - component: {fileID: 1470790183}
+  - component: {fileID: 1470790186}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -8285,6 +8508,18 @@ MonoBehaviour:
           m_StringArgument: CreditClose
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1470790186}
+        m_TargetAssemblyTypeName: Cycle33.Audio.SoundActor, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Button
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1470790184
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8323,6 +8558,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1470790181}
   m_CullTransparentMesh: 1
+--- !u!114 &1470790186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1470790181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbdf323fbf89d6478219bd328abffb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - actionKey: Button
+    cue: {fileID: 11400000, guid: 536ab6824b443c140b7ed840fed464ac, type: 2}
+    volumeScale: 1
+  playOnSpawn: 0
+  spawnKey: Voice
+  spawnSilenceSec: 0.5
+  playOnDestroy: 0
+  destroyKey: Die
+  joinRandomCalls: 0
+  speciesId: 
+  randomCallKey: Voice
 --- !u!1 &1475124425
 GameObject:
   m_ObjectHideFlags: 0
@@ -10597,6 +10856,7 @@ GameObject:
   - component: {fileID: 1899238787}
   - component: {fileID: 1899238786}
   - component: {fileID: 1899238789}
+  - component: {fileID: 1899238790}
   m_Layer: 5
   m_Name: Play2
   m_TagString: Untagged
@@ -10679,6 +10939,18 @@ MonoBehaviour:
           m_StringArgument: Stage2
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 95159817}
+        m_TargetAssemblyTypeName: Cycle33.Audio.SoundActor, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Button
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1899238787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10729,6 +11001,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6833c84fa4e917f40bd923d3bee6b355, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1899238790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1899238784}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbdf323fbf89d6478219bd328abffb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - actionKey: Button
+    cue: {fileID: 11400000, guid: 536ab6824b443c140b7ed840fed464ac, type: 2}
+    volumeScale: 1
+  playOnSpawn: 0
+  spawnKey: Voice
+  spawnSilenceSec: 0.5
+  playOnDestroy: 0
+  destroyKey: Die
+  joinRandomCalls: 0
+  speciesId: 
+  randomCallKey: Voice
 --- !u!1 &1902770594
 GameObject:
   m_ObjectHideFlags: 0
@@ -10816,6 +11112,7 @@ GameObject:
   - component: {fileID: 1908179973}
   - component: {fileID: 1908179972}
   - component: {fileID: 1908179971}
+  - component: {fileID: 1908179974}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -10898,6 +11195,18 @@ MonoBehaviour:
           m_StringArgument: StageSelectClose
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1470790186}
+        m_TargetAssemblyTypeName: Cycle33.Audio.SoundActor, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Button
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1908179972
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10936,6 +11245,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1908179969}
   m_CullTransparentMesh: 1
+--- !u!114 &1908179974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1908179969}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbdf323fbf89d6478219bd328abffb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - actionKey: Button
+    cue: {fileID: 11400000, guid: 536ab6824b443c140b7ed840fed464ac, type: 2}
+    volumeScale: 1
+  playOnSpawn: 0
+  spawnKey: Voice
+  spawnSilenceSec: 0.5
+  playOnDestroy: 0
+  destroyKey: Die
+  joinRandomCalls: 0
+  speciesId: 
+  randomCallKey: Voice
 --- !u!1 &1932073325
 GameObject:
   m_ObjectHideFlags: 0
@@ -11260,6 +11593,7 @@ GameObject:
   - component: {fileID: 2008309274}
   - component: {fileID: 2008309273}
   - component: {fileID: 2008309276}
+  - component: {fileID: 2008309277}
   m_Layer: 5
   m_Name: Play7
   m_TagString: Untagged
@@ -11342,6 +11676,18 @@ MonoBehaviour:
           m_StringArgument: Stage7
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 95159817}
+        m_TargetAssemblyTypeName: Cycle33.Audio.SoundActor, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Button
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2008309274
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11392,6 +11738,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6833c84fa4e917f40bd923d3bee6b355, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2008309277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2008309271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbdf323fbf89d6478219bd328abffb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - actionKey: Button
+    cue: {fileID: 11400000, guid: 536ab6824b443c140b7ed840fed464ac, type: 2}
+    volumeScale: 1
+  playOnSpawn: 0
+  spawnKey: Voice
+  spawnSilenceSec: 0.5
+  playOnDestroy: 0
+  destroyKey: Die
+  joinRandomCalls: 0
+  speciesId: 
+  randomCallKey: Voice
 --- !u!1 &2016859335
 GameObject:
   m_ObjectHideFlags: 0
@@ -11637,6 +12007,7 @@ GameObject:
   - component: {fileID: 2048422467}
   - component: {fileID: 2048422466}
   - component: {fileID: 2048422469}
+  - component: {fileID: 2048422470}
   m_Layer: 5
   m_Name: Play5
   m_TagString: Untagged
@@ -11719,6 +12090,18 @@ MonoBehaviour:
           m_StringArgument: Stage5
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 95159817}
+        m_TargetAssemblyTypeName: Cycle33.Audio.SoundActor, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Button
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2048422467
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11769,6 +12152,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6833c84fa4e917f40bd923d3bee6b355, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2048422470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2048422464}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbdf323fbf89d6478219bd328abffb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - actionKey: Button
+    cue: {fileID: 11400000, guid: 536ab6824b443c140b7ed840fed464ac, type: 2}
+    volumeScale: 1
+  playOnSpawn: 0
+  spawnKey: Voice
+  spawnSilenceSec: 0.5
+  playOnDestroy: 0
+  destroyKey: Die
+  joinRandomCalls: 0
+  speciesId: 
+  randomCallKey: Voice
 --- !u!1 &2061005761
 GameObject:
   m_ObjectHideFlags: 0
@@ -12006,6 +12413,7 @@ GameObject:
   - component: {fileID: 2093997827}
   - component: {fileID: 2093997826}
   - component: {fileID: 2093997825}
+  - component: {fileID: 2093997828}
   m_Layer: 5
   m_Name: StartButton
   m_TagString: Untagged
@@ -12088,6 +12496,18 @@ MonoBehaviour:
           m_StringArgument: StageSelectOpen
           m_BoolArgument: 1
         m_CallState: 2
+      - m_Target: {fileID: 2093997828}
+        m_TargetAssemblyTypeName: Cycle33.Audio.SoundActor, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Button
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!114 &2093997826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12126,6 +12546,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2093997823}
   m_CullTransparentMesh: 1
+--- !u!114 &2093997828
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2093997823}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbdf323fbf89d6478219bd328abffb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - actionKey: Button
+    cue: {fileID: 11400000, guid: 536ab6824b443c140b7ed840fed464ac, type: 2}
+    volumeScale: 1
+  playOnSpawn: 0
+  spawnKey: Voice
+  spawnSilenceSec: 0.5
+  playOnDestroy: 0
+  destroyKey: Die
+  joinRandomCalls: 0
+  speciesId: 
+  randomCallKey: Voice
 --- !u!1 &2113387209
 GameObject:
   m_ObjectHideFlags: 0
