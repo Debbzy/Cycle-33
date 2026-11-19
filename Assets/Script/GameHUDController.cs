@@ -8,6 +8,7 @@ using UnityEngine.InputSystem;
 using TMPro;
 using Cycle33.Core;
 using Cycle33.Data;
+using Cycle33.Audio;
 
 namespace Cycle33.Systems
 {
@@ -255,13 +256,23 @@ namespace Cycle33.Systems
 
         public void RestartStage()
         {
+            int index = SceneManager.GetActiveScene().buildIndex;
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.LoadSceneWithFade(index, () => Time.timeScale = 1f);
+                return;
+            }
             Time.timeScale = 1f;
-            Scene currentScene = SceneManager.GetActiveScene();
-            SceneManager.LoadScene(currentScene.buildIndex);
+            SceneManager.LoadScene(index);
         }
 
         public void LoadSceneByName(string sceneName)
         {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.LoadSceneWithFade(sceneName, () => Time.timeScale = 1f);
+                return;
+            }
             Time.timeScale = 1f;
             SceneManager.LoadScene(sceneName);
         }

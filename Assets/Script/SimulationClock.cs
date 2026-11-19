@@ -61,8 +61,10 @@ namespace Cycle33.Systems
 
         public void SetPaused(bool paused)
         {
+            bool changed = IsPaused != paused;
             IsPaused = paused;
             ApplyTimeScale();
+            if (changed) EventBus.RaisePauseChanged(paused);
         }
 
         public void TogglePause()
