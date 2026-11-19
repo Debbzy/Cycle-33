@@ -22,7 +22,7 @@ MonoBehaviour:
   hungryTolerance: 1
   lightningWeight: 1
   preyDiet: 00000000
-  eatsWorm: 0
+  eatsWorm: 1
   eatsGrass: 1
   isPredator: 0
   activeInDay: 1
@@ -32,4 +32,8 @@ MonoBehaviour:
   eatAnimDurationSec: 1.5
   eatHitFrameNormalized: 0.5
   mateAnimDurationSec: 1.5
-  prefab: {fileID: 8749380657175150011, guid: 644228327140f20428be23e5bd614241, type: 3}
+  prefab: {fileID: 6961722107175895700, guid: 331b9f7ea31f7bb4c882a8fa407c65e6, type: 3}
+  babyPrefab: {fileID: 4193805230121819947, guid: f988dc4ac987dbc408d141db7144bc60, type: 3}
+  modelForwardOffsetY: 180
+  squashAmount: 0.14
+  squashSpeed: 14

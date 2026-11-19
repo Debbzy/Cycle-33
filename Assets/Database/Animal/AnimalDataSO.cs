@@ -31,6 +31,24 @@ namespace Cycle33.Data
         public float eatAnimDurationSec = 1.5f;
         [Range(0.1f, 1f)] public float eatHitFrameNormalized = 0.5f;
         public float mateAnimDurationSec = 1.5f;
-        public GameObject prefab;
+
+        [Header("3D Prefabs & Orientation")]
+        public GameObject prefab;          // Prefab Adult (atau default)
+        public GameObject babyPrefab;      // Prefab Baby (opsional; jika kosong pakai prefab)
+        public float modelForwardOffsetY = 0f; // Isi 180 jika model menghadap belakang
+
+        [Header("Kenyat-Kenyot (Squash & Stretch) Saat Jalan")]
+        [Range(0f, 0.5f)] public float squashAmount = 0.14f;
+        public float squashSpeed = 14f;
+
+        public GameObject GetPrefabForAge(int currentAge)
+        {
+            bool adult = currentAge >= adultGrowCycles;
+            if (!adult && babyPrefab != null)
+            {
+                return babyPrefab;
+            }
+            return prefab;
+        }
     }
 }
