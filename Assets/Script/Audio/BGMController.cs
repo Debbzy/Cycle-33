@@ -43,7 +43,7 @@ namespace Cycle33.Audio
         /// <summary>Pengali percepatan fade (isi dengan kecepatan fast-forward). 1 = normal.</summary>
         public float FadeSpeedScale { get; set; } = 1f;
 
-        public bool IsTransitioning => _routine != null;
+        public bool IsTransitioning => _busy;
 
         /// <summary>Slot tujuan saat ini; null = hening.</summary>
         public BGMSlot? TargetSlot => _target >= 0 ? (BGMSlot?)_target : null;
@@ -57,6 +57,7 @@ namespace Cycle33.Audio
         private bool _dirty;
         private bool _exiting;
         private Coroutine _routine;
+        private bool _busy;
 
         private void Awake()
         {
@@ -85,21 +86,19 @@ namespace Cycle33.Audio
         /// <summary>Minta slot tertentu aktif. Slot yang sama dengan tujuan saat ini diabaikan (tidak restart).</summary>
         public void SetSlot(BGMSlot slot)
         {
-            if (_exiting) return;
-            _desired = (int)slot;
+            _desired = (int)slot; // tetap dicatat saat exit; diterapkan setelah ResumeRequests()
             _dirty = true;
         }
 
         /// <summary>Minta hening (fade out semua).</summary>
         public void SetSilence()
         {
-            if (_exiting) return;
             _desired = -1;
             _dirty = true;
         }
 
         /// <summary>
-        /// Fade out semua BGM lalu berhenti, dan mengunci permintaan baru sampai ResumeRequests().
+        /// Fade out semua BGM lalu berhenti. Permintaan slot yang masuk selama exit dicatat tapi baru diterapkan setelah ResumeRequests().
         /// Dipakai sebelum pindah scene. Bisa di-yield: yield return FadeOutAll(sec).
         /// </summary>
         public Coroutine FadeOutAll(float seconds)
@@ -140,6 +139,7 @@ namespace Cycle33.Audio
 
         private IEnumerator TransitionRoutine(int target)
         {
+            _busy = true;
             yield return FadeOutActive(AudioMath.ScaledFadeSec(fadeOutSec, FadeSpeedScale));
 
             if (target >= 0)
@@ -162,13 +162,14 @@ namespace Cycle33.Audio
                 src.volume = track.volume;
             }
 
-            _routine = null;
+            _busy = false;
         }
 
         private IEnumerator FadeOutAllRoutine(float seconds)
         {
+            _busy = true;
             yield return FadeOutActive(seconds);
-            _routine = null;
+            _busy = false;
         }
 
         /// <summary>Fade semua source yang aktif dari volume saat ini ke 0, lalu Stop().</summary>

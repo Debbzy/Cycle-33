@@ -75,6 +75,7 @@ namespace Cycle33.Audio
         {
             if (cue == null || cue.clips == null || cue.clips.Length == 0) return null;
             if (_world == null || _ui == null) return null;
+            if (cue.category == SFXCategory.World && AudioListener.pause) return null; // sedang pause
 
             float now = Time.unscaledTime;
             if (cue.cooldownSec > 0f && _lastPlayTime.TryGetValue(cue, out float last) && now - last < cue.cooldownSec)

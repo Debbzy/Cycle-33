@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2227001758683787120
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7160443747552255680}
+  - component: {fileID: 3958839901738801579}
+  - component: {fileID: 7674683546015028555}
+  - component: {fileID: 7637838984400328515}
+  - component: {fileID: 4146461772828558324}
+  - component: {fileID: 7327634606015335139}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7160443747552255680
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2227001758683787120}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.89903, y: 0, z: 6.37405}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3958839901738801579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2227001758683787120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 826b1b41216e1904989115b94ebd51ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  worldPoolSize: 16
+  uiPoolSize: 4
+  worldGroup: {fileID: -839677346883384481, guid: 51579730bc33f0444b02311c92e97252, type: 2}
+  uiGroup: {fileID: -6648074825825888960, guid: 51579730bc33f0444b02311c92e97252, type: 2}
+--- !u!114 &7674683546015028555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2227001758683787120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a4fb0ad52db20f4bb3c92a86b2ed186, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainMenu:
+    clip: {fileID: 8300000, guid: 495e66b00ed4ed849a76ef843799460d, type: 3}
+    volume: 1
+  day:
+    clip: {fileID: 8300000, guid: f7e79498ea7b21346b8d5644852d2123, type: 3}
+    volume: 1
+  night:
+    clip: {fileID: 0}
+    volume: 1
+  rain:
+    clip: {fileID: 8300000, guid: 070930d1a91083a48bb15e3f5cc4ea78, type: 3}
+    volume: 1
+  bgmGroup: {fileID: 4874766627798941391, guid: 51579730bc33f0444b02311c92e97252, type: 2}
+  fadeOutSec: 1.5
+  fadeInSec: 1.5
+  fadeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &7637838984400328515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2227001758683787120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f64bd6e4177db44285dda34b4f76368, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mixer: {fileID: 24100000, guid: 51579730bc33f0444b02311c92e97252, type: 2}
+  duckParam: BGM_Duck
+--- !u!114 &4146461772828558324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2227001758683787120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15e9ef34982aa8f4d8de056b13498342, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneFadeSec: 1
+--- !u!114 &7327634606015335139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2227001758683787120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db91d2478f1515c42a4369f182f040cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainMenuScenes:
+  - MainMenu
+  fullMoonCue: {fileID: 11400000, guid: 14d1a4a74af40b146a513cd49379aeec, type: 2}
+  winCue: {fileID: 11400000, guid: f464af782a463424f8c1188a6739653f, type: 2}
+  loseCue: {fileID: 11400000, guid: 2ddf01165078f2441908a14c23346029, type: 2}
