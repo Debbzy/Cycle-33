@@ -12,16 +12,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c832e0b2d5990a4882534825496515d, type: 3}
   m_Name: StageConfig 3
   m_EditorClassIdentifier: 
-  stageIndex: 1
-  totalCycles: 7
-  startMoney: 300
-  targetMoney: 1000
-  grassBasePerCycle: 5
+  stageIndex: 3
+  totalCycles: 21
+  startMoney: 1100
+  targetMoney: 1300
+  grassBasePerCycle: 8
   caveCapacityPerSpecies: 10
   hasCave: 1
-  availableAnimals: 0000000001000000020000000300000004000000
+  availableAnimals: 0100000003000000
+  availableEvents: 0100000003000000
+  eventCalendar:
+  - cycleIndex: 2
+    eventType: 1
+  - cycleIndex: 4
+    eventType: 3
+  - cycleIndex: 6
+    eventType: 1
+  - cycleIndex: 10
+    eventType: 3
+  - cycleIndex: 12
+    eventType: 1
+  - cycleIndex: 16
+    eventType: 1
+  - cycleIndex: 18
+    eventType: 3
+  - cycleIndex: 20
+    eventType: 1
   eventIntervalCycles: 3
-  availableEvents: 
   staticObjects:
   - objectType: 1
     bottomLeftGridPos: {x: 4, y: 7}

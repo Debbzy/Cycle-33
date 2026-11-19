@@ -797,7 +797,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   globalRules: {fileID: 11400000, guid: acd26f167c9f3d6488db5866f1a500af, type: 2}
-  stageConfig: {fileID: 11400000, guid: d2df32627a640ec469c03846ecf7dc3b, type: 2}
+  stageConfig: {fileID: 11400000, guid: 793477db610bd5d488a7303fac3ebaf9, type: 2}
   grassObjectData: {fileID: 11400000, guid: b49ac75955b22d44dafb44f78d518c24, type: 2}
   allAnimalData:
   - {fileID: 11400000, guid: bea1e155a94039c4492d503608868ecb, type: 2}

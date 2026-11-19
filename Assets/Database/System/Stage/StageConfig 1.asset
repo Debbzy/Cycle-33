@@ -14,14 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageIndex: 1
   totalCycles: 7
-  startMoney: 300
-  targetMoney: 1000
-  grassBasePerCycle: 5
+  startMoney: 700
+  targetMoney: 500
+  grassBasePerCycle: 7
   caveCapacityPerSpecies: 10
   hasCave: 1
-  availableAnimals: 0000000001000000020000000300000004000000
-  eventIntervalCycles: 3
+  availableAnimals: 0100000003000000
   availableEvents: 
+  eventCalendar: []
+  eventIntervalCycles: 3
   staticObjects:
   - objectType: 1
     bottomLeftGridPos: {x: 4, y: 7}

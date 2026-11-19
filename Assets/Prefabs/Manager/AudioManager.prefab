@@ -67,10 +67,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainMenu:
     clip: {fileID: 8300000, guid: 495e66b00ed4ed849a76ef843799460d, type: 3}
-    volume: 0.8
+    volume: 0.65
   day:
     clip: {fileID: 8300000, guid: f7e79498ea7b21346b8d5644852d2123, type: 3}
-    volume: 0.6
+    volume: 0.45
   night:
     clip: {fileID: 0}
     volume: 0.8
