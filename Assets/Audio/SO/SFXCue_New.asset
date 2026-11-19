@@ -12,15 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf923625335d35e448fa9718b7c21a8f, type: 3}
   m_Name: SFXCue_New
   m_EditorClassIdentifier: 
-  clips: []
+  clips:
+  - {fileID: 8300000, guid: 81eb46b76e7b3b741be835299156415f, type: 3}
   volume: 1
   basePitch: 1
-  pitchRandomRange: 0
+  pitchRandomRange: 0.1
   category: 0
-  mixerGroup: {fileID: 0}
+  mixerGroup: {fileID: -839677346883384481, guid: 51579730bc33f0444b02311c92e97252, type: 2}
   priority: 128
-  cooldownSec: 0
-  maxVoices: 0
+  cooldownSec: 1
+  maxVoices: 1
   duckBGM: 0
   duckPercent: 50
   duckHold: 0
