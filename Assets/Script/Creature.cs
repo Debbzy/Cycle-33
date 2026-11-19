@@ -103,15 +103,23 @@ namespace Cycle33.Systems
             ateThisPeriod = old.ateThisPeriod;
             matedThisPeriod = old.matedThisPeriod;
             _freezeUponReachingCave = old._freezeUponReachingCave;
+
+            // Pertahankan rotasi asli prefab adult, jangan timpa pakai rotasi prefab baby
+            _prefabEulerAngles = transform.eulerAngles;
+
             TransitionTo(old.State);
-            _prefabEulerAngles = old._prefabEulerAngles;
-            transform.eulerAngles = _prefabEulerAngles;
         }
 
         public void SyncBaseScaleFromCurrentTransform()
         {
             _baseScale = transform.localScale.sqrMagnitude > 0.0001f ? transform.localScale : Vector3.one;
+            _prefabEulerAngles = transform.eulerAngles;
             _renderers = GetComponentsInChildren<Renderer>();
+
+            if (isUndercover)
+            {
+                SetVisualVisible(false);
+            }
         }
 
         public void SetTargetGrass(GrassInstance g) => TargetGrass = g;
@@ -151,14 +159,7 @@ namespace Cycle33.Systems
             if (isFrozen || _freezeUponReachingCave) return false;
 
             age++;
-            bool wasAdult = isAdult;
             isAdult = Data != null && age >= Data.adultGrowCycles;
-
-            // Jika baru saja tumbuh menjadi Adult dan punya prefab dewasa terpisah, minta CycleManager swap visual
-            if (!wasAdult && isAdult && CycleManager.Instance != null)
-            {
-                CycleManager.Instance.RefreshCreatureVisualForAge(this);
-            }
 
             if (Data.species == Species.Worm)
             {

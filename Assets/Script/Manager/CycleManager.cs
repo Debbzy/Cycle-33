@@ -224,11 +224,23 @@ namespace Cycle33.Systems
             // 4. AnimalUpkeep
             CurrentPhase = PhaseType.AnimalUpkeep;
             List<Creature> deadList = new List<Creature>();
+            List<Creature> grewToAdultList = new List<Creature>();
+
             foreach (var c in ActiveCreatures)
             {
-                if (c.PerformUpkeepAndCheckDeath()) deadList.Add(c);
+                bool wasAdult = c.isAdult;
+                if (c.PerformUpkeepAndCheckDeath())
+                {
+                    deadList.Add(c);
+                }
+                else if (!wasAdult && c.isAdult)
+                {
+                    grewToAdultList.Add(c);
+                }
             }
+
             foreach (var dead in deadList) KillCreature(dead);
+            foreach (var grown in grewToAdultList) RefreshCreatureVisualForAge(grown);
 
             // 5. Mulai DayPhase
             StartDayPhase();
