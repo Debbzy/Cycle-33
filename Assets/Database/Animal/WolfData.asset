@@ -32,4 +32,8 @@ MonoBehaviour:
   eatAnimDurationSec: 1.5
   eatHitFrameNormalized: 0.5
   mateAnimDurationSec: 1.5
-  prefab: {fileID: 2567734888787833494, guid: ceedfd66c969b8e40a26ccf1db2057ba, type: 3}
+  prefab: {fileID: 5449506691770357364, guid: ae98219b22806164184398ae936048e9, type: 3}
+  babyPrefab: {fileID: 2480168473692931816, guid: d827d6f9868c176429c1cbdb7974d7ad, type: 3}
+  modelForwardOffsetY: 180
+  squashAmount: 0.14
+  squashSpeed: 14

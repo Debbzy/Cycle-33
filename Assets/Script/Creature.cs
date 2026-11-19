@@ -20,20 +20,21 @@ namespace Cycle33.Systems
         public int missedMeals;
         public int sickRemaining;
         public bool isSick => sickRemaining > 0;
-        public bool isFrozen;     // ANI-06: Timer berhenti
-        public bool isLocked;     // TGT-05: Mangsa dikunci saat ditarget predator
-        public bool isUndercover; // CAVE-01: Di dalam goa (kebal petir)
+        public bool isFrozen;     // ANI-06
+        public bool isLocked;     // TGT-05: Mangsa / Worm dikunci
+        public bool isUndercover; // CAVE-01
 
         [Header("Session Flags")]
         public bool ateThisPeriod;
         public bool matedThisPeriod;
-        public bool isReadyToMate => isAdult && Data != null && birthBar >= Data.birthBarMax;
+        public bool isReadyToMate => isAdult && Data != null && Data.species != Species.Worm && birthBar >= Data.birthBarMax;
 
         public CreatureState State { get; private set; }
 
         // Targets
         public GrassInstance TargetGrass { get; private set; }
         public Creature TargetPrey { get; private set; }
+        public Creature TargetWormCreature { get; private set; }
         public Creature TargetMate { get; private set; }
         public bool HasWormTarget { get; private set; }
         public bool IsMateInitiator { get; private set; }
@@ -44,9 +45,13 @@ namespace Cycle33.Systems
         private List<Vector2Int> _currentPath;
         private int _pathIndex;
         private float _stateTimer;
+        private float _walkCycleTimer;
         private bool _hitFrameTriggered;
-        private bool _freezeUponReachingCave; // Flag evakuasi predator saat Thunderstorm/Rain
+        private bool _freezeUponReachingCave;
+        private bool _isCurrentlyMoving;
+        private Vector3 _baseScale;
         private Renderer[] _renderers;
+        private Vector3 _prefabEulerAngles;
 
         public void Initialize(int id, AnimalDataSO data, GlobalRulesSO rules, bool isPurchased)
         {
@@ -55,12 +60,16 @@ namespace Cycle33.Systems
             _rules = rules;
             _renderers = GetComponentsInChildren<Renderer>();
 
+            // Ambil scale asli dari prefab yang sedang dipakai
+            _baseScale = transform.localScale.sqrMagnitude > 0.0001f ? transform.localScale : Vector3.one;
+            _prefabEulerAngles = transform.eulerAngles;
+
             age = isPurchased ? 1 : 0;
             isAdult = age >= Data.adultGrowCycles;
             birthBar = 0;
 
             cyclesSinceMeal = isPurchased ? Data.hungerInterval : 0;
-            isHungry = isAdult && (cyclesSinceMeal >= Data.hungerInterval);
+            isHungry = (Data.species == Species.Worm) || (isAdult && (cyclesSinceMeal >= Data.hungerInterval));
 
             missedMeals = 0;
             sickRemaining = 0;
@@ -70,19 +79,44 @@ namespace Cycle33.Systems
             ateThisPeriod = false;
             matedThisPeriod = false;
             _freezeUponReachingCave = false;
+            _isCurrentlyMoving = false;
+            _walkCycleTimer = 0f;
 
-            UpdateBabyVisualScale();
             TransitionTo(CreatureState.Idle);
         }
 
-        private void UpdateBabyVisualScale()
+        public void CopyRuntimeStateFrom(Creature old)
         {
+            RuntimeId = old.RuntimeId;
+            Data = old.Data;
+            _rules = old._rules;
+            age = old.age;
             isAdult = Data != null && age >= Data.adultGrowCycles;
-            transform.localScale = isAdult ? Vector3.one : Vector3.one * 0.6f;
+            birthBar = old.birthBar;
+            cyclesSinceMeal = old.cyclesSinceMeal;
+            isHungry = old.isHungry;
+            missedMeals = old.missedMeals;
+            sickRemaining = old.sickRemaining;
+            isFrozen = old.isFrozen;
+            isLocked = old.isLocked;
+            isUndercover = old.isUndercover;
+            ateThisPeriod = old.ateThisPeriod;
+            matedThisPeriod = old.matedThisPeriod;
+            _freezeUponReachingCave = old._freezeUponReachingCave;
+            TransitionTo(old.State);
+            _prefabEulerAngles = old._prefabEulerAngles;
+            transform.eulerAngles = _prefabEulerAngles;
+        }
+
+        public void SyncBaseScaleFromCurrentTransform()
+        {
+            _baseScale = transform.localScale.sqrMagnitude > 0.0001f ? transform.localScale : Vector3.one;
+            _renderers = GetComponentsInChildren<Renderer>();
         }
 
         public void SetTargetGrass(GrassInstance g) => TargetGrass = g;
         public void SetTargetPrey(Creature p) => TargetPrey = p;
+        public void SetTargetWormCreature(Creature w) => TargetWormCreature = w;
         public void SetWormTarget(bool val) => HasWormTarget = val;
         public void ClearMateTarget()
         {
@@ -93,7 +127,8 @@ namespace Cycle33.Systems
         public bool IsActiveInPhase(PhaseType phase, Cycle33.Core.EventType currentEvent)
         {
             if (Data == null) return false;
-            // Saat Rain atau Thunderstorm, predator selalu mengungsi ke goa & Frozen baik siang maupun malam
+            if (Data.species == Species.Worm) return true;
+
             if (Data.isPredator && (currentEvent == Cycle33.Core.EventType.Rain || currentEvent == Cycle33.Core.EventType.Thunderstorm))
                 return false;
 
@@ -110,16 +145,26 @@ namespace Cycle33.Systems
             return false;
         }
 
-        // ANI-01, ANI-02, ANI-04, ANI-06, SICK-05: Upkeep di awal siklus
         public bool PerformUpkeepAndCheckDeath()
         {
             if (State == CreatureState.Dead) return true;
-
-            // ANI-06 & INV-03: Hewan Frozen (atau sedang mengungsi untuk Frozen) melewati semua perubahan timer/status
             if (isFrozen || _freezeUponReachingCave) return false;
 
             age++;
-            UpdateBabyVisualScale();
+            bool wasAdult = isAdult;
+            isAdult = Data != null && age >= Data.adultGrowCycles;
+
+            // Jika baru saja tumbuh menjadi Adult dan punya prefab dewasa terpisah, minta CycleManager swap visual
+            if (!wasAdult && isAdult && CycleManager.Instance != null)
+            {
+                CycleManager.Instance.RefreshCreatureVisualForAge(this);
+            }
+
+            if (Data.species == Species.Worm)
+            {
+                isHungry = true;
+                return false;
+            }
 
             if (isAdult)
             {
@@ -145,18 +190,19 @@ namespace Cycle33.Systems
         public bool CheckNightStarvationDeath()
         {
             if (State == CreatureState.Dead || isFrozen || _freezeUponReachingCave) return false;
+            if (Data.species == Species.Worm) return false;
             if (Data.activeInNight && !Data.activeInDay && missedMeals >= Data.hungryTolerance) return true;
             return false;
         }
 
-        // Predator masuk Cave lalu ter-Frozen saat Thunderstorm / Rain (baik siang maupun malam)
         public void EvacuateToCaveAndFreeze(bool hasCaveInStage)
         {
+            if (Data != null && Data.species == Species.Worm) return;
+
             if (TargetRegistry.Instance != null)
                 TargetRegistry.Instance.ReleaseAllForCreature(this);
             isLocked = false;
 
-            // Jika sudah di dalam goa dari malam sebelumnya, langsung bekukan di dalam goa!
             if (isUndercover)
             {
                 _freezeUponReachingCave = false;
@@ -164,21 +210,19 @@ namespace Cycle33.Systems
                 return;
             }
 
-            // Jika ada Goa di stage ini, berjalan masuk ke pintu Goa dulu baru Frozen
             if (hasCaveInStage && GridService.Instance.CaveEntryCell.HasValue)
             {
                 _currentPath = GridService.Instance.FindPath(CurrentGridPos, GridService.Instance.CaveEntryCell.Value);
                 _pathIndex = 0;
                 if (_currentPath != null)
                 {
-                    isFrozen = false; // Biarkan bergerak sampai pintu goa
+                    isFrozen = false;
                     _freezeUponReachingCave = true;
                     TransitionTo(CreatureState.Sleeping);
                     return;
                 }
             }
 
-            // Jika tidak ada Goa (Stage 7) atau rute tertutup, langsung Frozen di tempat
             _freezeUponReachingCave = false;
             SetFrozen(true);
         }
@@ -186,6 +230,7 @@ namespace Cycle33.Systems
         public void SetFrozen(bool frozen)
         {
             isFrozen = frozen;
+            ResetSquashImmediate();
             if (frozen)
             {
                 _freezeUponReachingCave = false;
@@ -238,6 +283,8 @@ namespace Cycle33.Systems
 
         public void StartSleeping(bool tryGoToCave)
         {
+            if (Data != null && Data.species == Species.Worm) return;
+
             if (TargetRegistry.Instance != null)
                 TargetRegistry.Instance.ReleaseAllForCreature(this);
             isLocked = false;
@@ -310,6 +357,7 @@ namespace Cycle33.Systems
             if (State == CreatureState.Dead || isFrozen || Data == null) return;
 
             float dt = SimulationClock.Instance.SimDeltaTime;
+            _isCurrentlyMoving = false;
 
             switch (State)
             {
@@ -335,6 +383,43 @@ namespace Cycle33.Systems
                     UpdateSleeping(dt);
                     break;
             }
+
+            // Terapkan efek kenyat-kenyot hanya ketika sedang bergerak
+            UpdateSquashAndStretch(dt);
+        }
+
+        private void UpdateSquashAndStretch(float dt)
+        {
+            float amt = Data != null ? Data.squashAmount : 0.14f;
+            float spd = Data != null ? Data.squashSpeed : 14f;
+
+            Vector3 targetScale = _baseScale;
+            if (_isCurrentlyMoving && amt > 0f && dt > 0f)
+            {
+                _walkCycleTimer += dt * spd;
+                float wave = Mathf.Sin(_walkCycleTimer); // -1 .. +1
+                float squashFactor = wave * amt;
+
+                // Kenyot vertikal / stretch ke atas dan menyempit ke samping secara bergantian
+                targetScale = new Vector3(
+                    _baseScale.x * (1f - squashFactor * 0.6f),
+                    _baseScale.y * (1f + squashFactor),
+                    _baseScale.z * (1f - squashFactor * 0.6f)
+                );
+            }
+            else
+            {
+                _walkCycleTimer = 0f;
+            }
+
+            transform.localScale = Vector3.Lerp(transform.localScale, targetScale, Mathf.Clamp01(dt * 20f));
+        }
+
+        private void ResetSquashImmediate()
+        {
+            _isCurrentlyMoving = false;
+            _walkCycleTimer = 0f;
+            transform.localScale = _baseScale;
         }
 
         private void UpdateIdle(float dt)
@@ -368,7 +453,8 @@ namespace Cycle33.Systems
                 if (_stateTimer >= 2f)
                 {
                     _stateTimer = 0f;
-                    if (GridService.Instance.PondEdgeCells.Count > 0 &&
+                    if (Data.species != Species.Worm &&
+                        GridService.Instance.PondEdgeCells.Count > 0 &&
                         SimulationClock.Instance.SeededRng.NextDouble() < _rules.drinkChancePerIdleCheck)
                     {
                         var edges = GridService.Instance.PondEdgeCells;
@@ -396,7 +482,7 @@ namespace Cycle33.Systems
             else
             {
                 Vector3 dir = (GridService.Instance.PondCenterWorld - transform.position).normalized;
-                if (dir != Vector3.zero) transform.forward = dir;
+                FaceDirectionForward(dir);
 
                 _stateTimer += dt;
                 if (_stateTimer >= _rules.drinkDurationSec)
@@ -408,6 +494,40 @@ namespace Cycle33.Systems
 
         private void UpdateMovingToFood(float dt)
         {
+            // Target objek Worm di grid (untuk Chicken)
+            if (TargetWormCreature != null)
+            {
+                if (TargetWormCreature.State == CreatureState.Dead)
+                {
+                    HandleFoodTargetLost();
+                    return;
+                }
+
+                Vector2Int wormCoords = TargetWormCreature.CurrentGridPos;
+                if (_currentPath == null)
+                {
+                    _currentPath = GridService.Instance.FindPath(CurrentGridPos, wormCoords);
+                    _pathIndex = 0;
+                    if (_currentPath == null)
+                    {
+                        HandleFoodTargetLost();
+                        return;
+                    }
+                }
+
+                Vector3 wormWorld = GridService.Instance.GridToWorld(wormCoords);
+                if (Vector3.Distance(transform.position, wormWorld) <= 0.6f)
+                {
+                    TargetWormCreature.TransitionTo(CreatureState.BeingEaten);
+                    TransitionTo(CreatureState.Eating);
+                }
+                else
+                {
+                    MoveAlongPath(dt);
+                }
+                return;
+            }
+
             if (HasWormTarget)
             {
                 if (HabitatManager.Instance.WormCount <= 0) { HandleFoodTargetLost(); return; }
@@ -500,18 +620,28 @@ namespace Cycle33.Systems
         private void ExecuteEatHitFrame()
         {
             Assert.IsFalse(isFrozen, "[INV-03] Hewan Frozen tidak boleh makan!");
-            Assert.IsTrue(isAdult, "[INV-06] Baby tidak boleh makan!");
 
-            int finalEarn = Data.earn;
-            if (isSick)
+            if (Data.species != Species.Worm)
             {
-                finalEarn = Mathf.FloorToInt(Data.earn * (100f - _rules.sickEarnReductionPercent) / 100f);
+                Assert.IsTrue(isAdult, "[INV-06] Baby tidak boleh makan!");
+
+                int finalEarn = Data.earn;
+                if (isSick)
+                {
+                    finalEarn = Mathf.FloorToInt(Data.earn * (100f - _rules.sickEarnReductionPercent) / 100f);
+                }
+                EconomyService.Instance.AddMoney(finalEarn);
             }
-            EconomyService.Instance.AddMoney(finalEarn);
 
             bool contractedSickness = false;
 
-            if (HasWormTarget)
+            if (TargetWormCreature != null)
+            {
+                Creature eatenWorm = TargetWormCreature;
+                TargetRegistry.Instance.ReleaseWormReservation(this);
+                CycleManager.Instance.KillCreature(eatenWorm);
+            }
+            else if (HasWormTarget)
             {
                 TargetRegistry.Instance.ReleaseWormReservation(this);
                 HabitatManager.Instance.ConsumeOneWorm();
@@ -540,9 +670,8 @@ namespace Cycle33.Systems
                 sickRemaining = _rules.sickDurationCycles;
             }
 
-            // ANI-02: Reset status lapar setelah makan
             cyclesSinceMeal = 0;
-            isHungry = false;
+            isHungry = (Data.species == Species.Worm);
             missedMeals = 0;
             ateThisPeriod = true;
 
@@ -628,10 +757,9 @@ namespace Cycle33.Systems
                     }
                     else
                     {
-                        _currentPath = null; // Goa penuh, tidur/beku di luar
+                        _currentPath = null;
                     }
 
-                    // Jika sedang mengungsi karena Thunderstorm/Rain, langsung Frozen begitu tiba di Goa!
                     if (_freezeUponReachingCave)
                     {
                         SetFrozen(true);
@@ -669,15 +797,34 @@ namespace Cycle33.Systems
             if (_currentPath == null || _pathIndex >= _currentPath.Count) return;
 
             Vector3 targetWorld = GridService.Instance.GridToWorld(_currentPath[_pathIndex]);
-            transform.position = Vector3.MoveTowards(transform.position, targetWorld, Data.moveSpeedCellsPerSec * dt);
+            Vector3 toTarget = targetWorld - transform.position;
+            toTarget.y = 0f;
 
-            Vector3 dir = (targetWorld - transform.position).normalized;
-            if (dir != Vector3.zero) transform.forward = dir;
+            if (toTarget.sqrMagnitude > 0.0001f)
+            {
+                _isCurrentlyMoving = true;
+                FaceDirectionForward(toTarget.normalized);
+            }
+
+            transform.position = Vector3.MoveTowards(transform.position, targetWorld, Data.moveSpeedCellsPerSec * dt);
 
             if (Vector3.Distance(transform.position, targetWorld) < 0.05f)
             {
                 _pathIndex++;
             }
+        }
+
+        // Mengarahkan hadap maju hewan sesuai modelForwardOffsetY (0 = normal maju, 180 = jika prefab menghadap belakang)
+        private void FaceDirectionForward(Vector3 worldDir)
+        {
+            worldDir.y = 0f;
+            if (worldDir.sqrMagnitude < 0.0001f) return;
+
+            float moveYaw = Mathf.Atan2(worldDir.x, worldDir.z) * Mathf.Rad2Deg;
+            float offsetY = Data != null ? Data.modelForwardOffsetY : 0f;
+            float finalYaw = moveYaw + offsetY;
+
+            transform.eulerAngles = new Vector3(_prefabEulerAngles.x, finalYaw, _prefabEulerAngles.z);
         }
 
         public void MarkDead()

@@ -59,10 +59,12 @@ namespace Cycle33.Systems
             if (!IsSpeciesAvailableInStage(Species.Worm)) return false;
             if (!GridService.Instance.IsWalkable(gridPos)) return false;
 
-            int price = _animalDb[Species.Worm].price;
-            Money -= price; // ECON-01: Saldo negatif tetap diperbolehkan
+            AnimalDataSO data = _animalDb[Species.Worm];
+            Money -= data.price;
             HabitatManager.Instance.AddWorms(1);
             EventBus.RaiseMoneyChanged(Money);
+
+            CycleManager.Instance.SpawnCreature(data, gridPos, isPurchased: true);
             return true;
         }
 

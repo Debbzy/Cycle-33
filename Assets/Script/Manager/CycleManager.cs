@@ -85,12 +85,17 @@ namespace Cycle33.Systems
         public Creature SpawnCreature(AnimalDataSO data, Vector2Int gridPos, bool isPurchased)
         {
             Vector3 worldPos = GridService.Instance.GridToWorld(gridPos);
-            GameObject go = data.prefab != null
-                ? Instantiate(data.prefab, worldPos, Quaternion.identity)
+            int initialAge = isPurchased ? 1 : 0;
+            GameObject chosenPrefab = data.GetPrefabForAge(initialAge);
+
+            Quaternion prefabRot = chosenPrefab != null ? chosenPrefab.transform.rotation : Quaternion.identity;
+            GameObject go = chosenPrefab != null
+                ? Instantiate(chosenPrefab, worldPos, prefabRot)
                 : GameObject.CreatePrimitive(PrimitiveType.Capsule);
 
             go.name = $"{data.species}_{_nextCreatureId}";
             go.transform.position = worldPos;
+            go.transform.rotation = prefabRot;
 
             Creature c = go.GetComponent<Creature>();
             if (c == null) c = go.AddComponent<Creature>();
@@ -104,6 +109,33 @@ namespace Cycle33.Systems
             }
 
             return c;
+        }
+
+        public void RefreshCreatureVisualForAge(Creature c)
+        {
+            if (c == null || c.Data == null) return;
+            if (c.Data.babyPrefab == null || c.Data.prefab == null || c.Data.babyPrefab == c.Data.prefab) return;
+
+            GameObject targetPrefab = c.Data.GetPrefabForAge(c.age);
+            if (targetPrefab == null) return;
+
+            Vector3 oldPos = c.transform.position;
+            Quaternion targetRot = targetPrefab.transform.rotation;
+
+            GameObject newVisual = Instantiate(targetPrefab, oldPos, targetRot);
+            newVisual.name = c.gameObject.name;
+            newVisual.transform.rotation = targetRot;
+
+            Creature newCreature = newVisual.GetComponent<Creature>();
+            if (newCreature == null) newCreature = newVisual.AddComponent<Creature>();
+
+            newCreature.CopyRuntimeStateFrom(c);
+            newCreature.SyncBaseScaleFromCurrentTransform();
+
+            int idx = ActiveCreatures.IndexOf(c);
+            if (idx >= 0) ActiveCreatures[idx] = newCreature;
+
+            Destroy(c.gameObject);
         }
 
         private void ApplyMidCycleSpawnState(Creature c, bool isPurchased)
@@ -415,7 +447,9 @@ namespace Cycle33.Systems
                 if (c == null || !activeSpecies.Contains(c.Data.species) || !c.isAdult || c.isFrozen) continue;
                 if (c.State != CreatureState.Idle || c.ateThisPeriod) continue;
 
-                bool wantsToEat = c.isHungry || (isBonusFullMoonWolf && c.Data.species == Species.Wolf);
+                bool wantsToEat = (c.Data.species == Species.Worm) ||
+                                  c.isHungry ||
+                                  (isBonusFullMoonWolf && c.Data.species == Species.Wolf);
                 if (wantsToEat && TargetRegistry.Instance.HasAvailableFoodTargetFor(c))
                 {
                     TargetRegistry.Instance.TryAssignFoodTarget(c);
