@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7501566045788595919}
   - component: {fileID: 2822078576873947321}
   - component: {fileID: 4737500421603297134}
+  - component: {fileID: 282823914774580578}
   m_Layer: 0
   m_Name: Chicekn
   m_TagString: Untagged
@@ -108,3 +109,19 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &282823914774580578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8749380657175150011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbdf323fbf89d6478219bd328abffb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - actionKey: 
+    cue: {fileID: 11400000, guid: 7544a2b06bbe81f41af3ecdd98e43c69, type: 2}
+    volumeScale: 0
