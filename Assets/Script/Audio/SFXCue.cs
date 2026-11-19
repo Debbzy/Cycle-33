@@ -29,6 +29,8 @@ namespace Cycle33.Audio
         [Range(0.1f, 3f)] public float basePitch = 1f;
         [Tooltip("Variasi acak +/- dari Base Pitch tiap kali diputar. 0 = tanpa variasi. Contoh suara hewan: 0.1")]
         [Range(0f, 1f)] public float pitchRandomRange = 0f;
+        [Tooltip("Seberapa kuat pitch/kecepatan putar mengikuti fast-forward. 0 = tidak ikut. 1 = ikut penuh (6x = pitch x6, dibatasi 3). Disarankan sekitar 0.3 untuk suara hewan.")]
+        [Range(0f, 1f)] public float pitchFollowSpeed = 0f;
 
         [Header("Routing")]
         [Tooltip("UI = tetap berbunyi saat pause (AudioListener.pause). World = ikut berhenti.")]

@@ -93,7 +93,10 @@ namespace Cycle33.Audio
             AudioSource src = voice.source;
             src.clip = clip;
             src.volume = Mathf.Clamp01(cue.volume * volumeScale);
-            src.pitch = Mathf.Clamp(cue.basePitch + Random.Range(-cue.pitchRandomRange, cue.pitchRandomRange), 0.1f, 3f);
+            float pitch = cue.basePitch + Random.Range(-cue.pitchRandomRange, cue.pitchRandomRange);
+            if (cue.pitchFollowSpeed > 0f && AudioManager.Instance != null)
+                pitch *= Mathf.Pow(Mathf.Max(1f, AudioManager.Instance.SpeedScale), cue.pitchFollowSpeed);
+            src.pitch = Mathf.Clamp(pitch, 0.1f, 3f);
             src.priority = cue.priority;
             src.outputAudioMixerGroup = cue.mixerGroup != null ? cue.mixerGroup : pool.defaultGroup;
             src.Play();

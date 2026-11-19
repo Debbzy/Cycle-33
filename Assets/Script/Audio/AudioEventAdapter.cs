@@ -40,6 +40,14 @@ namespace Cycle33.Audio
 
         private bool Active => _manager != null && AudioManager.Instance == _manager;
 
+        // Status baca-saja untuk skrip audio lain (mis. CreatureCallScheduler).
+        public bool IsGameplay => _initialized && !_inMenu;
+        public bool IsDay => _phase == Phase.Day;
+        public bool IsNight => _phase == Phase.Night;
+        public bool IsRain => _rain;
+        public bool IsFullMoon => _fullMoon;
+        public bool IsEvaluated => _evaluated;
+
         private void Awake()
         {
             _manager = GetComponent<AudioManager>();
