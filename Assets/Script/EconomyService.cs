@@ -53,28 +53,33 @@ namespace Cycle33.Systems
         }
 
         // ECON-04: Worm dibeli lewat tombol UI (tanpa posisi), menambah wormCount
-        public bool TryBuyWorm()
+        public bool TryBuyWormAtCell(Vector2Int gridPos)
         {
             if (CycleManager.Instance.IsGameOver) return false;
             if (!IsSpeciesAvailableInStage(Species.Worm)) return false;
+            if (!GridService.Instance.IsWalkable(gridPos)) return false;
 
             int price = _animalDb[Species.Worm].price;
-            Money -= price; // ECON-01: Saldo negatif tidak menghalangi pembelian
+            Money -= price; // ECON-01: Saldo negatif tetap diperbolehkan
             HabitatManager.Instance.AddWorms(1);
             EventBus.RaiseMoneyChanged(Money);
             return true;
         }
 
-        // ECON-03: Membeli hewan kapan saja dan di mana saja sesuai posisi klik pada sel walkable
+        // ECON-03: Membeli hewan atau worm kapan saja sesuai posisi klik pada sel walkable
         public bool TryBuyAnimalAtCell(Species species, Vector2Int gridPos)
         {
             if (CycleManager.Instance.IsGameOver) return false;
-            if (species == Species.Worm) return TryBuyWorm();
             if (!IsSpeciesAvailableInStage(species)) return false;
             if (!GridService.Instance.IsWalkable(gridPos)) return false;
 
+            if (species == Species.Worm)
+            {
+                return TryBuyWormAtCell(gridPos);
+            }
+
             AnimalDataSO data = _animalDb[species];
-            Money -= data.price; // ECON-01 & ECON-03: Bisa utang negatif tanpa batas
+            Money -= data.price;
             EventBus.RaiseMoneyChanged(Money);
 
             CycleManager.Instance.SpawnCreature(data, gridPos, isPurchased: true);
