@@ -119,5 +119,37 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3b8f08bc21ff65245bc6089bc7aef530, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -5402216619745137703}
   m_SourcePrefab: {fileID: 100100000, guid: 3b8f08bc21ff65245bc6089bc7aef530, type: 3}
+--- !u!1 &4193805230121819947 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 3b8f08bc21ff65245bc6089bc7aef530, type: 3}
+  m_PrefabInstance: {fileID: 3959238511224889978}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-5402216619745137703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4193805230121819947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbdf323fbf89d6478219bd328abffb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entries:
+  - actionKey: ChickenSpawn
+    cue: {fileID: 11400000, guid: fdc941474b2dfb34b8d91a909350e1c2, type: 2}
+    volumeScale: 1
+  playOnSpawn: 1
+  spawnKey: ChickenSpawn
+  spawnSilenceSec: 0.5
+  playOnDestroy: 0
+  destroyKey: 
+  joinRandomCalls: 1
+  speciesId: Chicken
+  randomCallKey: ChickenSpawn
