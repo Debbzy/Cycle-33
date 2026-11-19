@@ -56,6 +56,32 @@ namespace Cycle33.Systems
             BeginNextCycle();
         }
 
+        public float PhaseProgress01
+        {
+            get
+            {
+                if (_rules == null) return 0f;
+                float duration = CurrentPhase == PhaseType.DayPhase ? _rules.dayDurationSec : _rules.nightDurationSec;
+                return duration > 0f ? Mathf.Clamp01(_phaseTimer / duration) : 0f;
+            }
+        }
+
+        public float CycleProgress01
+        {
+            get
+            {
+                if (_rules == null) return 0f;
+                float dayRatio = _rules.dayDurationSec / Mathf.Max(0.01f, _rules.dayDurationSec + _rules.nightDurationSec);
+                float nightRatio = 1f - dayRatio;
+
+                if (CurrentPhase == PhaseType.DayPhase)
+                    return PhaseProgress01 * dayRatio;
+                if (CurrentPhase == PhaseType.NightPhase)
+                    return dayRatio + (PhaseProgress01 * nightRatio);
+                return 0f;
+            }
+        }
+
         public Creature SpawnCreature(AnimalDataSO data, Vector2Int gridPos, bool isPurchased)
         {
             Vector3 worldPos = GridService.Instance.GridToWorld(gridPos);

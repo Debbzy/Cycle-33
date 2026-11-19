@@ -9,7 +9,7 @@ namespace Cycle33.Data
         public float cycleDurationSec = 120f;
         public float dayDurationSec = 60f;
         public float nightDurationSec = 60f;
-        public int[] speedMultipliers = { 1, 2, 3, 5, 6 };
+        public int[] speedMultipliers = { 1, 2, 4, 6 };
 
         [Header("Grid")]
         public Vector2Int gridSize = new Vector2Int(10, 10);

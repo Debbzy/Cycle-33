@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -12,7 +13,10 @@ namespace Cycle33.Systems
         [SerializeField] private Camera mainCamera;
         public Species? SelectedSpeciesForPlacement { get; private set; }
         public Vector2Int? HoveredGridCell { get; private set; }
-        public string LastGroundInspectMessage { get; private set; } = "Klik tanah untuk info cacing, atau pilih hewan untuk membeli.";
+        public string LastGroundInspectMessage { get; private set; } = "Klik tanah untuk info cacing, atau pilih hewan/worm untuk ditaruh.";
+
+        // Event agar HUD langsung merespons perubahan pilihan (mati/nyala sprite button)
+        public event Action<Species?> OnSelectedSpeciesChanged;
 
         private void Awake()
         {
@@ -26,26 +30,24 @@ namespace Cycle33.Systems
             if (SimulationClock.Instance != null && SimulationClock.Instance.IsPaused) return;
             if (CycleManager.Instance != null && CycleManager.Instance.IsGameOver) return;
 
-            if (species == Species.Worm)
+            // Jika menekan tombol spesies yang sama lagi, batalkan pilihan agar sprite nyala kembali
+            if (SelectedSpeciesForPlacement.HasValue && SelectedSpeciesForPlacement.Value == species)
             {
-                // ECON-04: Worm langsung dibeli lewat tombol UI tanpa klik posisi grid
-                if (EconomyService.Instance.TryBuyWorm())
-                {
-                    LastGroundInspectMessage = $"Membeli 1 Worm! Total Worm di tanah: {HabitatManager.Instance.WormCount}";
-                }
-                SelectedSpeciesForPlacement = null;
+                CancelSelection();
+                return;
             }
-            else
-            {
-                SelectedSpeciesForPlacement = species;
-                LastGroundInspectMessage = $"Mode Beli [{species}]: Klik sel HIJAU di grid untuk menaruh.";
-            }
+
+            SelectedSpeciesForPlacement = species;
+            LastGroundInspectMessage = $"Mode Taruh [{species}]: Klik sel HIJAU di grid untuk menaruh.";
+            OnSelectedSpeciesChanged?.Invoke(SelectedSpeciesForPlacement);
         }
 
         public void CancelSelection()
         {
+            if (!SelectedSpeciesForPlacement.HasValue) return;
             SelectedSpeciesForPlacement = null;
-            LastGroundInspectMessage = "Mode beli dibatalkan.";
+            LastGroundInspectMessage = "Mode taruh dibatalkan.";
+            OnSelectedSpeciesChanged?.Invoke(null);
         }
 
         private void Update()
@@ -53,7 +55,6 @@ namespace Cycle33.Systems
             if (mainCamera == null) mainCamera = Camera.main;
             if (mainCamera == null || CycleManager.Instance == null || CycleManager.Instance.IsGameOver) return;
 
-            // Jangan proses input klik grid jika game sedang di-Pause
             if (SimulationClock.Instance != null && SimulationClock.Instance.IsPaused)
             {
                 HoveredGridCell = null;
@@ -62,7 +63,13 @@ namespace Cycle33.Systems
 
             if (Mouse.current == null) return;
 
-            // Bila kursor berada di atas elemen Canvas UI Unity, jangan highlight grid di bawahnya
+            // Klik Kanan untuk membatalkan pilihan beli hewan/worm (sprite tombol akan nyala lagi)
+            if (Mouse.current.rightButton.wasPressedThisFrame)
+            {
+                CancelSelection();
+                return;
+            }
+
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             {
                 HoveredGridCell = null;
@@ -71,34 +78,25 @@ namespace Cycle33.Systems
 
             UpdateHoveredCell();
 
-            // Klik Kanan untuk batal memilih hewan
-            if (Mouse.current.rightButton.wasPressedThisFrame)
-            {
-                CancelSelection();
-                return;
-            }
-
-            // Klik Kiri pada tile grid
             if (Mouse.current.leftButton.wasPressedThisFrame && HoveredGridCell.HasValue)
             {
                 Vector2Int gridPos = HoveredGridCell.Value;
 
                 if (SelectedSpeciesForPlacement.HasValue)
                 {
-                    // ECON-03: Beli & taruh hewan di sel walkable
-                    bool bought = EconomyService.Instance.TryBuyAnimalAtCell(SelectedSpeciesForPlacement.Value, gridPos);
+                    Species chosen = SelectedSpeciesForPlacement.Value;
+                    bool bought = EconomyService.Instance.TryBuyAnimalAtCell(chosen, gridPos);
                     if (bought)
                     {
-                        LastGroundInspectMessage = $"Berhasil membeli {SelectedSpeciesForPlacement.Value} di sel {gridPos}!";
+                        LastGroundInspectMessage = $"Berhasil menaruh {chosen} di sel {gridPos}!";
                     }
                     else
                     {
-                        LastGroundInspectMessage = $"Gagal! Sel {gridPos} terhalang objek atau hewan tidak tersedia!";
+                        LastGroundInspectMessage = $"Gagal! Sel {gridPos} terhalang objek atau {chosen} tidak tersedia!";
                     }
                 }
                 else
                 {
-                    // Bagian 7.2: Klik tanah menampilkan jumlah cacing
                     GridCell cell = GridService.Instance.GetCell(gridPos);
                     string grassStatus = (cell != null && cell.Grass != null)
                         ? (cell.Grass.IsParasite ? "Rumput Parasit" : "Rumput Sehat")
